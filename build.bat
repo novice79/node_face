@@ -1,0 +1,1 @@
+call node-gyp rebuild --msvs_version=2015 --python=C:\Python27\python.exe
