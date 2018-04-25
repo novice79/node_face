@@ -2,14 +2,14 @@
   "targets": [
     {
       "target_name": "addon",
-      'msvs_precompiled_header': 'stdafx.h',
-      'msvs_precompiled_source': 'stdafx.cpp',
+      'msvs_precompiled_header': 'src/stdafx.h',
+      'msvs_precompiled_source': 'src/stdafx.cpp',
       "cflags!": [ "-fno-exceptions" ],
       "cflags_cc!": [ "-fno-exceptions" ],
       "sources": [ 
-        "addon.cc",
-        'stdafx.cpp',
-        "common.cpp"
+        "./src/stdafx.cpp",
+        "./src/addon.cc",
+        "./src/common.cpp"
         ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
