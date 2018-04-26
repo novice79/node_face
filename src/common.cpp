@@ -1,4 +1,5 @@
 
+#include "stdafx.h"
 #include "common.h"
 
 using namespace std;
@@ -35,15 +36,34 @@ void FreeGo::init()
 	);
 	logging::add_common_attributes();
 }
-
+using namespace cv;
 string test_cpp()
 {    
     string ver = "Hello world from c++";
-    FREEGO_TRACE <<"Hello world from c++";
-    FREEGO_DEBUG <<"Hello world from c++";
-    FREEGO_INFO <<"Hello world from c++";
-    FREEGO_WARN <<"Hello world from c++";
-    FREEGO_ERROR <<"Hello world from c++";
-    FREEGO_FATAL <<"Hello world from c++";
+    // FREEGO_TRACE <<"Hello world from c++";
+    // FREEGO_DEBUG <<"Hello world from c++";
+    // FREEGO_INFO <<"Hello world from c++";
+    // FREEGO_WARN <<"Hello world from c++";
+    // FREEGO_ERROR <<"Hello world from c++";
+    // FREEGO_FATAL <<"Hello world from c++";
+
+    VideoCapture cap; // open the default camera
+    cap.open(0);
+    if (!cap.isOpened()) // check if we succeeded
+    {
+        FREEGO_DEBUG<<"can not open camera or video file"<<endl;
+        return "open camera failed";
+    }        
+    namedWindow("Video", 1);
+    for (;;)
+    {
+        Mat frame;
+        cap >> frame; // get a new frame from camera
+        imshow("Video", frame);
+        if (waitKey(30) >= 0)
+            break;
+    }
+    // Release the camera or video cap
+    cap.release();
     return ver;
 }

@@ -13,11 +13,11 @@
         ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
-        "E:/cpp_libs/win64/include/boost-1_66"
+        "E:/cpp_libs/boost/win64/include/boost-1_66"
       ],
       'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS', 'WIN32_LEAN_AND_MEAN' ],
       'variables': {
-        'boost_lib%': 'E:/cpp_libs/win64/lib'
+        'boost_lib%': 'E:/cpp_libs/boost/win64/lib'
       },
       'libraries': [
         '-l<(boost_lib)/libboost_system-vc140-mt-s-x64-1_66.lib'

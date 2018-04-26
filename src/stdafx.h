@@ -1,5 +1,5 @@
 #pragma once
-// #define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 
 #include <Windows.h>
 #include <cstdio>
@@ -41,6 +41,9 @@
 #include <boost/log/sources/record_ostream.hpp>
 namespace pt = boost::property_tree;
 
+// OpenCV includes
+#include "opencv2/core.hpp"
+#include "opencv2/highgui.hpp"
 
 #pragma warning(disable:4818 4819)
 template <typename T>
