@@ -40,12 +40,12 @@ using namespace cv;
 string test_cpp()
 {    
     string ver = "Hello world from c++";
-    // FREEGO_TRACE <<"Hello world from c++";
-    // FREEGO_DEBUG <<"Hello world from c++";
-    // FREEGO_INFO <<"Hello world from c++";
-    // FREEGO_WARN <<"Hello world from c++";
-    // FREEGO_ERROR <<"Hello world from c++";
-    // FREEGO_FATAL <<"Hello world from c++";
+    FREEGO_TRACE <<"Hello world from c++";
+    FREEGO_DEBUG <<"Hello world from c++";
+    FREEGO_INFO <<"Hello world from c++";
+    FREEGO_WARN <<"Hello world from c++";
+    FREEGO_ERROR <<"Hello world from c++";
+    FREEGO_FATAL <<"Hello world from c++";
 
     VideoCapture cap; // open the default camera
     cap.open(0);
@@ -65,5 +65,6 @@ string test_cpp()
     }
     // Release the camera or video cap
     cap.release();
+    destroyAllWindows();
     return ver;
 }
