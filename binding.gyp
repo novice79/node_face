@@ -9,7 +9,8 @@
       "sources": [ 
         "./src/stdafx.cpp",
         "./src/addon.cc",
-        "./src/common.cpp"
+        "./src/common.cpp",
+        "./src/test.cpp"
         ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
@@ -61,6 +62,12 @@
         ,'-l<(lib_dir)/OpenGL32.lib'
         ,'-lvfw32.lib'
         ,'-lcomctl32.lib'
+
+        ,'-l<(lib_dir)/dlib19.10.0_release_64bit_msvc1912.lib'
+        ,'-l<(lib_dir)/openblas.lib'
+        ,'-l<(lib_dir)/fftw3.lib'
+        ,'-l<(lib_dir)/fftw3f.lib'
+        ,'-l<(lib_dir)/fftw3l.lib'
       ],
       'configurations': {
         'Release': {
