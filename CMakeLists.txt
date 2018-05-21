@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_TOOLCHAIN_FILE "D:/installed/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
 # Name of the project (will be the name of the plugin)
 project(addon)

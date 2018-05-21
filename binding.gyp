@@ -13,22 +13,54 @@
         ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
-        "E:/cpp_libs/boost/win64/include/boost-1_66"
+        "D:/installed/vcpkg/installed/x64-windows-static/include"
       ],
       'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS', 'WIN32_LEAN_AND_MEAN' ],
       'variables': {
-        'boost_lib%': 'E:/cpp_libs/boost/win64/lib'
+        'lib_dir%': 'D:/installed/vcpkg/installed/x64-windows-static/lib'
       },
       'libraries': [
-        '-l<(boost_lib)/libboost_system-vc140-mt-s-x64-1_66.lib'
-        ,'-l<(boost_lib)/libboost_date_time-vc140-mt-s-x64-1_66.lib'
-        ,'-l<(boost_lib)/libboost_regex-vc140-mt-s-x64-1_66.lib'
-        ,'-l<(boost_lib)/libboost_atomic-vc140-mt-s-x64-1_66.lib'
-        ,'-l<(boost_lib)/libboost_chrono-vc140-mt-s-x64-1_66.lib'
-        ,'-l<(boost_lib)/libboost_log_setup-vc140-mt-s-x64-1_66.lib'
-        ,'-l<(boost_lib)/libboost_thread-vc140-mt-s-x64-1_66.lib'
-        ,'-l<(boost_lib)/libboost_filesystem-vc140-mt-s-x64-1_66.lib'
-        ,'-l<(boost_lib)/libboost_log-vc140-mt-s-x64-1_66.lib'
+        '-l<(lib_dir)/boost_system-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_date_time-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_regex-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_atomic-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_chrono-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_log_setup-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_thread-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_filesystem-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_log-vc140-mt.lib'
+
+        ,'-l<(lib_dir)/opencv_calib3d341.lib'
+        ,'-l<(lib_dir)/opencv_core341.lib'
+        ,'-l<(lib_dir)/opencv_features2d341.lib'
+        ,'-l<(lib_dir)/opencv_flann341.lib'
+        ,'-l<(lib_dir)/opencv_highgui341.lib'
+        ,'-l<(lib_dir)/opencv_imgcodecs341.lib'
+        ,'-l<(lib_dir)/opencv_imgproc341.lib'
+        ,'-l<(lib_dir)/opencv_ml341.lib'
+        ,'-l<(lib_dir)/opencv_objdetect341.lib'
+        ,'-l<(lib_dir)/opencv_photo341.lib'
+        ,'-l<(lib_dir)/opencv_shape341.lib'
+        ,'-l<(lib_dir)/opencv_stitching341.lib'
+        ,'-l<(lib_dir)/opencv_superres341.lib'
+        ,'-l<(lib_dir)/opencv_video341.lib'
+        ,'-l<(lib_dir)/opencv_videoio341.lib'
+        ,'-l<(lib_dir)/opencv_videostab341.lib'
+
+        ,'-l<(lib_dir)/ittnotify.lib'
+        ,'-l<(lib_dir)/jpeg.lib'
+        ,'-l<(lib_dir)/libpng16.lib'
+        ,'-l<(lib_dir)/GlU32.lib'
+        ,'-l<(lib_dir)/tiff.lib'
+        ,'-l<(lib_dir)/tiffxx.lib'
+        ,'-l<(lib_dir)/turbojpeg.lib'
+        ,'-l<(lib_dir)/zlib.lib'
+        ,'-l<(lib_dir)/lzma.lib'
+        ,'-l<(lib_dir)/libeay32.lib'
+        ,'-l<(lib_dir)/lapack.lib'
+        ,'-l<(lib_dir)/OpenGL32.lib'
+        ,'-lvfw32.lib'
+        ,'-lcomctl32.lib'
       ],
       'configurations': {
         'Release': {
