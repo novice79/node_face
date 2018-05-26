@@ -16,7 +16,17 @@
         "<!@(node -p \"require('node-addon-api').include\")",
         "D:/installed/vcpkg/installed/x64-windows-static/include"
       ],
-      'defines': [ 'NAPI_DISABLE_CPP_EXCEPTIONS', 'WIN32_LEAN_AND_MEAN' ],
+      'defines': [ 
+        # '_HAS_EXCEPTIONS=1',
+        # 'NAPI_DISABLE_CPP_EXCEPTIONS', 
+        'WIN32_LEAN_AND_MEAN' 
+      ],
+      'msvs_settings': {
+        'VCCLCompilerTool': { 'ExceptionHandling': 1 },
+      },
+      'conditions': [
+        ['OS=="win"', { 'defines': [ '_HAS_EXCEPTIONS=1' ] }]
+      ],
       'variables': {
         'lib_dir%': 'D:/installed/vcpkg/installed/x64-windows-static/lib'
       },

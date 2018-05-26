@@ -1,17 +1,18 @@
 #include "stdafx.h"
-#include <napi.h>
+
 
 #include "export.h"
 
-void RunCallback(const Napi::CallbackInfo& info) {
+Napi::Value StartVideo(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::Function cb = info[0].As<Napi::Function>();
-  // cb.MakeCallback(env.Global(), { Napi::String::New( env, test_cpp().c_str() ) });
-  cb.MakeCallback(env.Global(), { Napi::Number::New( env, test() ) });
+  int ret = test(cb);
+  return Napi::Number::New(info.Env(), ret);
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  return Napi::Function::New(env, RunCallback);
+  exports.Set(Napi::String::New(env, "startVideo"), Napi::Function::New(env, StartVideo));
+  return exports;
 }
 
 NODE_API_MODULE(addon, Init)

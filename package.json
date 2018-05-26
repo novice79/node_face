@@ -1,12 +1,20 @@
 {
   "name": "callbacks",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Node.js Addons Example #3",
   "main": "addon.js",
   "private": true,
   "gypfile": true,
   "dependencies": {
     "bindings": "~1.2.1",
-    "node-addon-api": "^1.0.0"
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.1",
+    "node-addon-api": "^1.0.0",
+    "request": "^2.87.0",
+    "socket.io": "^2.1.1",
+    "winston": "^2.4.2",
+    "winston-daily-rotate-file": "^3.1.4"
   }
 }

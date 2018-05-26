@@ -1,0 +1,15 @@
+
+html, body {
+    height: 100%;
+}
+body{
+    margin: 0px;
+    padding: 0px;
+}
+.content {
+    height: 100%;
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: space-around;
+}

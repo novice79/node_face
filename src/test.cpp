@@ -1,10 +1,11 @@
 
-#include <opencv2/opencv.hpp>
 #include <dlib/opencv.h>
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing/render_face_detections.h>
 #include <dlib/image_processing.h>
 #include <dlib/gui_widgets.h>
+#include "napi-thread-safe-callback.hpp"
+#include "common.h"
 
 using namespace dlib;
 using namespace std;
@@ -35,60 +36,76 @@ void render_face(cv::Mat &img, const dlib::full_object_detection &d)
     draw_polyline(img, d, 48, 59, true); // Outer lip
     draw_polyline(img, d, 60, 67, true); // Inner lip
 }
-int test1()
-{
-    return 3;
+int g_i = 444;
+void buffer_delete_callback(Napi::Env env, uchar* data, int* hint) {
+    // FREEGO_TRACE <<"in buffer_delete_callback, hint="<<*hint<<endl;
+//   delete reinterpret_cast<vector<unsigned char> *> (the_vector);
 }
-#define FACE_DOWNSAMPLE_RATIO 4
+// #define FACE_DOWNSAMPLE_RATIO 4
+#define FACE_DOWNSAMPLE_RATIO 2
 #define SKIP_FRAMES 2
-int test()
+int test(Napi::Function &cb)
 {
-    cv::VideoCapture cap(0);
-    cv::Mat im;
-    cv::Mat im_small, im_display;
-
-    frontal_face_detector detector = get_frontal_face_detector();
-    shape_predictor pose_model;
-    deserialize("shape_predictor_68_face_landmarks.dat") >> pose_model;
-    int count = 0;
-    std::vector<rectangle> faces;
-    // Grab a frame
-    cap >> im;
-
-    // Resize image for face detection
-    cv::resize(im, im_small, cv::Size(), 1.0 / FACE_DOWNSAMPLE_RATIO, 1.0 / FACE_DOWNSAMPLE_RATIO);
-
-    // Change to dlib's image format. No memory is copied.
-    cv_image<bgr_pixel> cimg_small(im_small);
-    cv_image<bgr_pixel> cimg(im);
-
-    // Detect faces on resize image
-    if (count % SKIP_FRAMES == 0)
-    {
-        faces = detector(cimg_small);
-    }
-
-    // Find the pose of each face.
-    std::vector<full_object_detection> shapes;
-    for (unsigned long i = 0; i < faces.size(); ++i)
-    {
-        // Resize obtained rectangle for full resolution image.
-        rectangle r(
-            (long)(faces[i].left() * FACE_DOWNSAMPLE_RATIO),
-            (long)(faces[i].top() * FACE_DOWNSAMPLE_RATIO),
-            (long)(faces[i].right() * FACE_DOWNSAMPLE_RATIO),
-            (long)(faces[i].bottom() * FACE_DOWNSAMPLE_RATIO));
-
-        // Landmark detection on full sized image
-        full_object_detection shape = pose_model(cimg, r);
-        shapes.push_back(shape);
-        // Custom Face Render
-        render_face(im, shape);
-        if(0 == i)
+    auto callback = std::make_shared<ThreadSafeCallback>(cb);
+    std::thread t([=]() {
+        cv::VideoCapture cap(0);
+        cv::Mat im, original_im;
+        cv::Mat im_small, im_display;
+        frontal_face_detector detector = get_frontal_face_detector();
+        shape_predictor pose_model;
+        deserialize("face.dat") >> pose_model;
+        int count = 0;
+        std::vector<rectangle> faces;
+        std::vector<uchar> original, filtered;
+        // FREEGO_TRACE <<"in c++ thread\n";
+        while (1)
         {
-            imwrite( "aaa.jpg", im );
+            // Grab a frame
+            cap >> im;
+            original_im = im.clone();
+            // Resize image for face detection
+            cv::resize(im, im_small, cv::Size(), 1.0 / FACE_DOWNSAMPLE_RATIO, 1.0 / FACE_DOWNSAMPLE_RATIO);
+            // Change to dlib's image format. No memory is copied.
+            cv_image<bgr_pixel> cimg_small(im_small);
+            cv_image<bgr_pixel> cimg(im);
+            faces = detector(cimg_small);
+            // Detect faces on resize image
+            // if (count % SKIP_FRAMES == 0)
+            // {
+            //     faces = detector(cimg_small);
+            // }
+            // Find the pose of each face.
+            std::vector<full_object_detection> shapes;
+            for (unsigned long i = 0; i < faces.size(); ++i)
+            {
+                // Resize obtained rectangle for full resolution image.
+                rectangle r(
+                    (long)(faces[i].left() * FACE_DOWNSAMPLE_RATIO),
+                    (long)(faces[i].top() * FACE_DOWNSAMPLE_RATIO),
+                    (long)(faces[i].right() * FACE_DOWNSAMPLE_RATIO),
+                    (long)(faces[i].bottom() * FACE_DOWNSAMPLE_RATIO));
+                // Landmark detection on full sized image
+                full_object_detection shape = pose_model(cimg, r);
+                shapes.push_back(shape);
+                // Custom Face Render
+                render_face(im, shape);
+            }
+            imencode(".jpg", original_im, original);
+            imencode(".jpg", im, filtered);
+            // Call back with result
+            callback->call([&original, &filtered](Napi::Env env, std::vector<napi_value> &args) {
+                // This will run in main thread and needs to construct the
+                // arguments for the call
+                args = {
+                    Napi::Buffer<uchar>::New(env, (uchar*)&original[0], original.size(), buffer_delete_callback, &g_i ),
+                    Napi::Buffer<uchar>::New(env, (uchar*)&filtered[0], filtered.size(), buffer_delete_callback, &g_i )
+                };
+            });
+            // std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
-    }
+        
+    });
+    t.detach();
     return 0;
 }
 int test0()
@@ -110,7 +127,7 @@ int test0()
         deserialize("shape_predictor_68_face_landmarks.dat") >> pose_model;
 
         // Grab and process frames until the main window is closed by the user.
-        while(!win.is_closed())
+        while (!win.is_closed())
         {
             // Grab a frame
             cv::Mat temp;
@@ -126,7 +143,7 @@ int test0()
             // while using cimg.
             cv_image<bgr_pixel> cimg(temp);
 
-            // Detect faces 
+            // Detect faces
             std::vector<rectangle> faces = detector(cimg);
             // Find the pose of each face.
             std::vector<full_object_detection> shapes;
@@ -139,14 +156,15 @@ int test0()
             win.add_overlay(render_face_detections(shapes));
         }
     }
-    catch(serialization_error& e)
+    catch (serialization_error &e)
     {
         cout << "You need dlib's default face landmarking model file to run this example." << endl;
         cout << "You can get it from the following URL: " << endl;
         cout << "   http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2" << endl;
-        cout << endl << e.what() << endl;
+        cout << endl
+             << e.what() << endl;
     }
-    catch(exception& e)
+    catch (exception &e)
     {
         cout << e.what() << endl;
     }
