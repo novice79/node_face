@@ -8,6 +8,8 @@
 #include <memory>
 #include <iostream>
 #include <algorithm>
+#include <functional>
+#include <future>
 #include <string>
 #include <regex>
 #include <sstream>
@@ -23,9 +25,9 @@
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
 //#include <boost/thread.hpp>
-#include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
+// #include <boost/bind.hpp>
+// #include <boost/shared_ptr.hpp>
+// #include <boost/enable_shared_from_this.hpp>
 #include <boost/property_tree/ptree.hpp> 
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/convert.hpp>

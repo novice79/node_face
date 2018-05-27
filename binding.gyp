@@ -10,6 +10,7 @@
         "./src/stdafx.cpp",
         "./src/addon.cc",
         "./src/common.cpp",
+        "./src/worker.cpp",
         "./src/test.cpp"
         ],
       "include_dirs": [

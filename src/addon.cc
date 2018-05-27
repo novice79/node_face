@@ -2,6 +2,7 @@
 
 
 #include "export.h"
+#include "worker.h"
 
 Napi::Value StartVideo(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
@@ -12,7 +13,8 @@ Napi::Value StartVideo(const Napi::CallbackInfo& info) {
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "startVideo"), Napi::Function::New(env, StartVideo));
-  return exports;
+  return NativeWorker::Init(env, exports);
+  // return exports;
 }
 
 NODE_API_MODULE(addon, Init)
