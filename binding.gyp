@@ -11,7 +11,7 @@
         "./src/addon.cc",
         "./src/common.cpp",
         "./src/worker.cpp",
-        "./src/test.cpp"
+        "./src/face.cpp"
         ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
@@ -23,7 +23,10 @@
         'WIN32_LEAN_AND_MEAN' 
       ],
       'msvs_settings': {
-        'VCCLCompilerTool': { 'ExceptionHandling': 1 },
+        'VCCLCompilerTool': { 
+          # 'WarningLevel': '0',
+          'ExceptionHandling': 1 
+        },
       },
       'conditions': [
         ['OS=="win"', { 'defines': [ '_HAS_EXCEPTIONS=1' ] }]
@@ -83,7 +86,10 @@
       'configurations': {
         'Release': {
           'msvs_settings': {
-            'VCCLCompilerTool': {             
+            'VCCLCompilerTool': {      
+              'DisableSpecificWarnings': ['4503'],
+              # 'WarningLevel': '1',
+              # 'WarningLevel': 'TurnOffAllWarnings',       
               # enable rtti
               'RuntimeTypeInfo': 'true',
               'ExceptionHandling': 1

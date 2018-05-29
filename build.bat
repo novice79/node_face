@@ -8,4 +8,4 @@ REM npm i --python=C:\Python27\python.exe
 REM npm config set cmake_VCPKG_TARGET_TRIPLET "x64-windows-static" --global
 REM VCPKG_DEFAULT_TRIPLET=x64-windows
 REM REM call node-gyp rebuild --msvs_version=2015
-REM pkg -t node8-win-x64 test.js
+REM pkg -t node8-win-x64 app.js

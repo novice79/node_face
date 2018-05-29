@@ -44,8 +44,9 @@ io.on('connection', function (socket) {
     console.log("-----------------------打孔-----------------------");
   });
 });
-addon.startVideo( (o_buff, f_buff)=> {
+addon.startVideo( (o_buff, f_buff, count, trait)=> {
   const o_frame = `data:image/jpeg;base64,${o_buff.toString('base64')}`; 
   const f_frame = `data:image/jpeg;base64,${f_buff.toString('base64')}`; 
-  io.emit('video_frame', {o_frame, f_frame})
+  const traits = trait.toString('hex'); 
+  io.emit('video_frame', {o_frame, f_frame, count, traits});
 });

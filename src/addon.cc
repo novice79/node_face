@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
-
-#include "export.h"
+#include "face.h"
 #include "worker.h"
 
 Napi::Value StartVideo(const Napi::CallbackInfo& info) {

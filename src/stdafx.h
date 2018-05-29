@@ -46,8 +46,8 @@ namespace pt = boost::property_tree;
 // OpenCV includes
 #include <opencv2/opencv.hpp>
 #include <napi.h>
-
-#pragma warning(disable:4818 4819)
+//space is important
+#pragma warning( disable : 4818 4819 4503 )
 template <typename T>
 struct FGST
 {
