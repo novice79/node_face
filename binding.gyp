@@ -11,7 +11,8 @@
         "./src/addon.cc",
         "./src/common.cpp",
         "./src/worker.cpp",
-        "./src/face.cpp"
+        "./src/face.cpp",
+        "./src/tts.cpp"
         ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
@@ -44,6 +45,7 @@
         ,'-l<(lib_dir)/boost_thread-vc140-mt.lib'
         ,'-l<(lib_dir)/boost_filesystem-vc140-mt.lib'
         ,'-l<(lib_dir)/boost_log-vc140-mt.lib'
+        ,'-l<(lib_dir)/boost_locale-vc140-mt.lib'
 
         ,'-l<(lib_dir)/opencv_calib3d341.lib'
         ,'-l<(lib_dir)/opencv_core341.lib'

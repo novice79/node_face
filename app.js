@@ -38,15 +38,17 @@ process.on('uncaughtException', async (err) => {
 server.listen(port, () => {
   console.log(`express server listen on ${port}`);
   winston.info(`express server listen on ${port}`);
+  addon.speak('人脸识别服务已启动')
 });
 io.on('connection', function (socket) {
-  socket.on('punch', (data) => {
-    console.log("-----------------------打孔-----------------------");
+  socket.on('speak', (data) => {
+    addon.speak(data)
+    winston.info(`机器说：${data}`);
   });
 });
-addon.startVideo( (o_buff, f_buff, count, trait)=> {
+addon.startVideo( (o_buff, f_buff, count)=> {
   const o_frame = `data:image/jpeg;base64,${o_buff.toString('base64')}`; 
   const f_frame = `data:image/jpeg;base64,${f_buff.toString('base64')}`; 
-  const traits = trait.toString('hex'); 
-  io.emit('video_frame', {o_frame, f_frame, count, traits});
+//   const traits = trait.toString('hex'); 
+  io.emit('video_frame', {o_frame, f_frame, count});
 });

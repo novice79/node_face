@@ -32,7 +32,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/convert.hpp>
 #include <boost/convert/lexical_cast.hpp>
-
+#include <boost/locale.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -46,8 +46,15 @@ namespace pt = boost::property_tree;
 // OpenCV includes
 #include <opencv2/opencv.hpp>
 #include <napi.h>
-//space is important
-#pragma warning( disable : 4818 4819 4503 )
+////////////////////////////////
+//for sapi5 tts
+#define _ATL_APARTMENT_THREADED
+#include <atlbase.h>
+//You may derive a class from CComModule and use it if you want to override something,
+//but do not change the name of _Module
+extern CComModule _Module;
+#include <atlcom.h>
+////////////////////////////////
 template <typename T>
 struct FGST
 {

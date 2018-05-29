@@ -136,18 +136,18 @@ int test(Napi::Function &cb)
                 // Custom Face Render
                 render_face(im, shape);
             }
-            face_trait = "";
-            if(1 == face_count)
-            {
-                // This call asks the DNN to convert each face image in faces into a 128D vector.
-                // In this 128D vector space, images from the same person will be close to each other
-                // but vectors from different people will be far apart.  So we can use these vectors to
-                // identify if a pair of images are from the same person or from different people.  
-                std::vector<matrix<float,0,1>> face_descriptors = net(faces_to_net);
-                stringstream traits;
-                serialize(face_descriptors[0], traits);
-                face_trait = traits.str();
-            }
+            // face_trait = "";
+            // if(1 == face_count)
+            // {
+            //     // This call asks the DNN to convert each face image in faces into a 128D vector.
+            //     // In this 128D vector space, images from the same person will be close to each other
+            //     // but vectors from different people will be far apart.  So we can use these vectors to
+            //     // identify if a pair of images are from the same person or from different people.  
+            //     std::vector<matrix<float,0,1>> face_descriptors = net(faces_to_net);
+            //     stringstream traits;
+            //     serialize(face_descriptors[0], traits);
+            //     face_trait = traits.str();
+            // }
             imencode(".jpg", original_im, original);
             imencode(".jpg", im, filtered);
             // Call back with result
@@ -157,8 +157,8 @@ int test(Napi::Function &cb)
                 args = {
                     Napi::Buffer<uchar>::New(env, (uchar*)&original[0], original.size(), buffer_delete_callback, &g_i ),
                     Napi::Buffer<uchar>::New(env, (uchar*)&filtered[0], filtered.size(), buffer_delete_callback, &g_i ),
-                    Napi::Number::New(env, face_count),
-                    Napi::Buffer<uchar>::New(env, (uchar*)&face_trait[0], face_trait.size(), buffer_delete_callback, &g_i )
+                    Napi::Number::New(env, face_count)
+                    // Napi::Buffer<uchar>::New(env, (uchar*)&face_trait[0], face_trait.size(), buffer_delete_callback, &g_i )
                 };
             });
             // std::this_thread::sleep_for(std::chrono::milliseconds(500));

@@ -57,3 +57,6 @@ function open_img(type) {
     cur_load_type = type;
     $('input[type="file"]').click();
 }
+function cmp_face(){
+    sock.emit('speak', '人脸匹配成功')
+}

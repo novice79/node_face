@@ -2,6 +2,7 @@
 
 #include "face.h"
 #include "worker.h"
+#include "tts.h"
 
 Napi::Value StartVideo(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
@@ -12,8 +13,9 @@ Napi::Value StartVideo(const Napi::CallbackInfo& info) {
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
   exports.Set(Napi::String::New(env, "startVideo"), Napi::Function::New(env, StartVideo));
-  return NativeWorker::Init(env, exports);
-  // return exports;
+  NativeWorker::Init(env, exports);
+  Speaker::Init(env, exports);
+  return exports;
 }
 
 NODE_API_MODULE(addon, Init)
