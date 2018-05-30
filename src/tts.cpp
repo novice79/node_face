@@ -1,7 +1,10 @@
 #include "common.h"
 #include "tts.h"
 
-
+void AsyncJob::Execute()
+{
+    ret_ = Speaker::get().speak(words_);
+}
 Napi::Object Speaker::Init(Napi::Env env, Napi::Object exports)
 {
     exports.Set(
@@ -9,7 +12,7 @@ Napi::Object Speaker::Init(Napi::Env env, Napi::Object exports)
         Napi::Function::New(env, [](const Napi::CallbackInfo& info)->Napi::Value
         {
             Napi::Env env = info.Env();
-            if (info.Length() < 1)
+            if (info.Length() < 2)
             {
                 Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
                 return env.Null();
@@ -20,8 +23,10 @@ Napi::Object Speaker::Init(Napi::Env env, Napi::Object exports)
                 return env.Null();
             }
             std::string words = info[0].ToString();
-            double ret = Speaker::get().speak(words);
-            return Napi::Number::New(env, ret);
+            Napi::Function callback = info[1].As<Napi::Function>();
+            AsyncJob* speakWorker = new AsyncJob(callback, words);
+            speakWorker->Queue();
+            return info.Env().Undefined();
         })
     );
     return exports;

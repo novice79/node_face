@@ -42,13 +42,19 @@ function drop(ev) {
 }
 function processFile(target) {
     if (target.files.length == 0) return;
-    let img_file = event.target.files[0];
+    let img_file = target.files[0];
     var reader = new FileReader();
     reader.onload = e => {
         if( 0 == cur_load_type){
             $("#img1").attr('src', e.target.result);
+            img1_data = {
+                o_frame: e.target.result
+            }
         } else {
             $("#img2").attr('src', e.target.result);
+            img2_data = {
+                f_frame: e.target.result
+            }
         }
     };
     reader.readAsDataURL(img_file);
@@ -58,5 +64,21 @@ function open_img(type) {
     $('input[type="file"]').click();
 }
 function cmp_face(){
-    sock.emit('speak', '人脸匹配成功')
+    // sock.emit('speak', '人脸匹配成功')
+    $.ajax( {
+        type: "POST",
+        url: '/get_face_trait',
+        // timeout : 3000,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify({
+            img: img1_data.o_frame
+        }),
+        dataType: "json"
+    }) 
+    .done( (resp)=> {
+        console.log('success', resp );
+    })
+    .fail( (err)=> { 
+        console.log( 'failed: ', err );
+    })
 }

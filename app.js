@@ -26,8 +26,9 @@ global.winston = new (wins.Logger)({
         })
     ]
 });
-app.use(bodyParser.json());       // to support JSON-encoded bodies
+app.use(bodyParser.json({limit: '50mb'}));       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    limit: '50mb',
     extended: true
 }));
 
@@ -38,17 +39,37 @@ process.on('uncaughtException', async (err) => {
 server.listen(port, () => {
   console.log(`express server listen on ${port}`);
   winston.info(`express server listen on ${port}`);
-  addon.speak('人脸识别服务已启动')
+  addon.speak('人脸识别服务已启动', ret=>{
+
+  })
+});
+app.post('/get_face_trait', function (req, res) {
+    if (!req.body) return res.sendStatus(400);
+    let data = req.body;
+    // console.log(data)
+    // winston.info(`get_face_trait: ${JSON.stringify(data)}`);
+    if (!data.img) return res.sendStatus(400);
+    let img_data = data.img.split(',').pop();
+    img_data = Buffer.from(img_data, "base64");
+    addon.get_face_trait(img_data, (err, count, trait)=>{
+        res.json({
+            count,
+            trait: trait ? trait.toString('hex') : null
+        });
+    })
+    
 });
 io.on('connection', function (socket) {
   socket.on('speak', (data) => {
-    addon.speak(data)
+    addon.speak(data, ret=>{
+        
+    })
     winston.info(`机器说：${data}`);
   });
 });
 addon.startVideo( (o_buff, f_buff, count)=> {
   const o_frame = `data:image/jpeg;base64,${o_buff.toString('base64')}`; 
   const f_frame = `data:image/jpeg;base64,${f_buff.toString('base64')}`; 
-//   const traits = trait.toString('hex'); 
+
   io.emit('video_frame', {o_frame, f_frame, count});
 });

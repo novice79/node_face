@@ -12,6 +12,7 @@
         "./src/common.cpp",
         "./src/worker.cpp",
         "./src/face.cpp",
+        "./src/video.cpp",
         "./src/tts.cpp"
         ],
       "include_dirs": [
@@ -89,7 +90,7 @@
         'Release': {
           'msvs_settings': {
             'VCCLCompilerTool': {      
-              'DisableSpecificWarnings': ['4503'],
+              'DisableSpecificWarnings': ['4503', '4819'],
               # 'WarningLevel': '1',
               # 'WarningLevel': 'TurnOffAllWarnings',       
               # enable rtti
