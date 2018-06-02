@@ -19,6 +19,7 @@
 #include <condition_variable>
 #include <chrono>
 #include <vector>
+#include <tuple>
 #include <map>
 #include <queue>
 

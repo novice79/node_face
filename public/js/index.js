@@ -48,11 +48,13 @@ function processFile(target) {
         if( 0 == cur_load_type){
             $("#img1").attr('src', e.target.result);
             img1_data = {
-                o_frame: e.target.result
+                o_frame: e.target.result,
+                f_frame: e.target.result
             }
         } else {
             $("#img2").attr('src', e.target.result);
             img2_data = {
+                o_frame: e.target.result,
                 f_frame: e.target.result
             }
         }
@@ -65,13 +67,29 @@ function open_img(type) {
 }
 function cmp_face(){
     // sock.emit('speak', '人脸匹配成功')
+    // $.ajax( {
+    //     type: "POST",
+    //     url: '/get_face_trait',
+    //     // timeout : 3000,
+    //     contentType: "application/json; charset=utf-8",
+    //     data: JSON.stringify({
+    //         img: img1_data.o_frame
+    //     }),
+    //     dataType: "json"
+    // }) 
+    // .done( (resp)=> {
+    //     console.log('success', resp );
+    // })
+    // .fail( (err)=> { 
+    //     console.log( 'failed: ', err );
+    // })
     $.ajax( {
         type: "POST",
-        url: '/get_face_trait',
-        // timeout : 3000,
+        url: '/cmp_face_by_imgs',
         contentType: "application/json; charset=utf-8",
         data: JSON.stringify({
-            img: img1_data.o_frame
+            img1: img1_data.o_frame,
+            img2: img2_data.o_frame
         }),
         dataType: "json"
     }) 

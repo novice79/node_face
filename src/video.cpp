@@ -2,7 +2,7 @@
 
 #include "napi-thread-safe-callback.hpp"
 #include "common.h"
-#include "face.h"
+#include "def.h"
 #include "video.h"
 
 using namespace std;
@@ -36,26 +36,30 @@ void render_face(cv::Mat &img, const dlib::full_object_detection &d)
     draw_polyline(img, d, 60, 67, true); // Inner lip
 }
 int g_i = 444;
-shape_predictor g_sp;
-anet_type g_net;
+shape_predictor sp68;
 void buffer_delete_callback(Napi::Env env, uchar* data, int* hint) {
     // FREEGO_TRACE <<"in buffer_delete_callback, hint="<<*hint<<endl;
 //   delete reinterpret_cast<vector<unsigned char> *> (the_vector);
 }
-// #define FACE_DOWNSAMPLE_RATIO 4
-#define FACE_DOWNSAMPLE_RATIO 2
-#define SKIP_FRAMES 2
+
 int capture_video(Napi::Function &cb)
 {
     auto callback = std::make_shared<ThreadSafeCallback>(cb);
     std::thread t([=]() {
         cv::VideoCapture cap(0);
+        if (!cap.isOpened())  
+        {
+            FREEGO_TRACE <<"打开摄像头失败！"<<endl;
+            return;
+        }        
+        cap.set(CV_CAP_PROP_FRAME_WIDTH, 800);
+        cap.set(CV_CAP_PROP_FRAME_HEIGHT, 600);
+
         cv::Mat im, original_im;
         cv::Mat im_small, im_display;
         string face_trait;
         frontal_face_detector detector = get_frontal_face_detector();        
-        deserialize("lm.dat") >> g_sp;        
-        deserialize("net.dat") >> g_net;
+        deserialize("lm68.dat") >> sp68;               
         int count = 0;
         std::vector<rectangle> faces;
         std::vector<uchar> original, filtered;
@@ -88,7 +92,7 @@ int capture_video(Napi::Function &cb)
                     (long)(faces[i].right() * FACE_DOWNSAMPLE_RATIO),
                     (long)(faces[i].bottom() * FACE_DOWNSAMPLE_RATIO));
                 // Landmark detection on full sized image
-                full_object_detection shape = g_sp(cimg, r);
+                full_object_detection shape = sp68(cimg, r);
                 shapes.push_back(shape);
                 // Custom Face Render
                 render_face(im, shape);
