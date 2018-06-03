@@ -87,7 +87,25 @@ app.post('/cmp_face_by_traits', function (req, res) {
         });
     })    
 });
-app.post('/cmp_face_by_imgs', function (req, res) {
+app.post('/cmp_face_by_trait_and_img', async function (req, res) {
+    let a = new Date().getTime(), b;
+    if (!req.body) return res.sendStatus(400);
+    let data = req.body;
+    if (! (data.img && data.trait) ) return res.sendStatus(400);
+    let img = data.img.split(',').pop();
+    img = Buffer.from(img, "base64");
+    const trait = Buffer.from(data.trait, "hex");
+    addon.cmp_trait_and_img(trait, img, (ret, t)=>{
+        // console.log(ret)
+        b = new Date().getTime();
+        console.log(`/cmp_face_by_trait_and_img total cost: %d ms`, b-a);
+        winston.info(`/cmp_face_by_trait_and_img total cost: %d ms`, b-a);
+        ret = JSON.parse(ret);
+        ret.trait = t.toString('hex') 
+        res.json(ret);
+    })
+});
+app.post('/cmp_face_by_imgs', async function (req, res) {
     let a = new Date().getTime(), b;
     if (!req.body) return res.sendStatus(400);
     let data = req.body;
@@ -98,43 +116,51 @@ app.post('/cmp_face_by_imgs', function (req, res) {
     img2 = Buffer.from(img2, "base64");
     // fs.writeFile(`img1.jpg`, img1, ()=>{});
     // fs.writeFile(`img2.jpg`, img2, ()=>{});
-    const t1 = new Promise(function(resolve, reject) {
-        addon.get_face_trait(img1, (err, count, trait)=>{
-            if (err) {
-                reject(err);
-            } else {
-                 resolve({count, trait});
-            }
-        })
-    });
-    const t2 = new Promise(function(resolve, reject) {
-        addon.get_face_trait(img2, (err, count, trait)=>{
-            if (err) {
-                reject(err);
-            } else {
-                 resolve({count, trait});
-            }
-        })
-    });
-    Promise.all([t1, t2]).then( values=> {
-        // console.log(values);
-        let trait1 = values[0];
-        let trait2 = values[1];
-        if( !(trait1.count == 1 && trait2.count == 1 ) ){
-            return res.json({ trait1, trait2 });
-        }
-        // winston.info(`trait1: %s`, trait1.trait.toString('hex'));
-        // winston.info(`trait2: %s`, trait2.trait.toString('hex'));
-        addon.cmp_traits(trait1.trait, trait2.trait, (err, diff)=>{
-            b = new Date().getTime();
-            winston.info(`/cmp_face_by_imgs total cost: %d ms`, b-a);
-            console.log('diff='+diff);
-            res.json({
-                diff
-            });
-        });
-    });
-       
+    addon.cmp_images(img1, img2, (ret, t1, t2)=>{
+        // console.log(ret)
+        b = new Date().getTime();
+        console.log(`/cmp_face_by_imgs total cost: %d ms`, b-a);
+        winston.info(`/cmp_face_by_imgs total cost: %d ms`, b-a);
+        // console.log(typeof ret);
+        ret = JSON.parse(ret);
+        ret.trait1 = t1.toString('hex') 
+        ret.trait2 = t2.toString('hex') 
+        res.json(ret);
+    })
+    // const t1 = new Promise(function(resolve, reject) {
+    //     addon.get_face_trait(img1, (err, count, trait)=>{
+    //         if (err) {
+    //             reject(err);
+    //         } else {
+    //             resolve({count, trait});
+    //         }
+    //     })
+    // });
+    // let trait1 = await t1;
+    // const t2 = new Promise(function(resolve, reject) {
+    //     addon.get_face_trait(img2, (err, count, trait)=>{
+    //         if (err) {
+    //             reject(err);
+    //         } else {
+    //              resolve({count, trait});
+    //         }
+    //     })
+    // });        
+    // let trait2 = await t2;
+    // if( !(trait1.count == 1 && trait2.count == 1 ) ){
+    //     return res.json({ trait1, trait2 });
+    // }
+    // // winston.info(`trait1: %s`, trait1.trait.toString('hex'));
+    // // winston.info(`trait2: %s`, trait2.trait.toString('hex'));
+    // addon.cmp_traits(trait1.trait, trait2.trait, (err, diff)=>{
+    //     b = new Date().getTime();
+    //     winston.info(`/cmp_face_by_imgs total cost: %d ms`, b-a);
+    //     console.log('diff='+diff);
+    //     res.json({
+    //         diff
+    //     });
+    // });
+  
 });
 io.on('connection', function (socket) {
   socket.on('speak', (data) => {

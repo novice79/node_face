@@ -36,6 +36,17 @@ void FreeGo::init()
 	);
 	logging::add_common_attributes();
 }
+std::string hexStr(const std::string& buff)
+{
+	constexpr char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7',
+		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+	std::string s(buff.size() * 2, ' ');
+	for (auto i = 0; i < buff.size(); ++i) {
+		s[2 * i] = hexmap[(buff[i] & 0xF0) >> 4];
+		s[2 * i + 1] = hexmap[buff[i] & 0x0F];
+	}
+	return s;
+}
 using namespace cv;
 string test_cpp()
 {    

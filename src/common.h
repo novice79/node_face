@@ -74,7 +74,7 @@ public:
 private:
 
 }; // class end
-
+std::string hexStr(const std::string& buff);
 #define FREEGO_TRACE BOOST_LOG_SEV(FreeGo::instance()->lg, boost::log::trivial::trace)
 #define FREEGO_DEBUG BOOST_LOG_SEV(FreeGo::instance()->lg, boost::log::trivial::debug)
 #define FREEGO_INFO  BOOST_LOG_SEV(FreeGo::instance()->lg, boost::log::trivial::info)

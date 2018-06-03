@@ -3,7 +3,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>C++视频插件测试</title>
+  <title>C++人脸插件测试</title>
   <link href="css/index.css" rel="stylesheet" type="text/css" />
   <script src="/socket.io/socket.io.js"></script>
   <script src="libs/jquery-2.1.4.min.js"></script>
@@ -12,6 +12,13 @@
 <body>
   <div class="container">
     <input type="file" onchange="processFile(this)">
+    <div style="display: flex;">
+      <input placeholder="请输入文字" style="width: 300px;"/>
+      <button onclick="">文字转语音</button>
+      <button onclick='$( "img" ).addClass( "scaled" );' style="margin-left: auto;">图片大小50%</button>
+      <button onclick='$( "img" ).removeClass( "scaled" );' style="margin-left: auto;">图片大小100%</button>
+    </div>
+
     <div class="frame_pair">
       <img id="o_frame" draggable="true" ondragstart="drag_o(event)">
       <img id="f_frame" draggable="true" ondragstart="drag_f(event)">

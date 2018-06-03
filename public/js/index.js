@@ -67,36 +67,74 @@ function open_img(type) {
 }
 function cmp_face(){
     // sock.emit('speak', '人脸匹配成功')
-    // $.ajax( {
-    //     type: "POST",
-    //     url: '/get_face_trait',
-    //     // timeout : 3000,
-    //     contentType: "application/json; charset=utf-8",
-    //     data: JSON.stringify({
-    //         img: img1_data.o_frame
-    //     }),
-    //     dataType: "json"
-    // }) 
-    // .done( (resp)=> {
-    //     console.log('success', resp );
-    // })
-    // .fail( (err)=> { 
-    //     console.log( 'failed: ', err );
-    // })
-    $.ajax( {
-        type: "POST",
-        url: '/cmp_face_by_imgs',
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify({
-            img1: img1_data.o_frame,
-            img2: img2_data.o_frame
-        }),
-        dataType: "json"
-    }) 
-    .done( (resp)=> {
-        console.log('success', resp );
-    })
-    .fail( (err)=> { 
-        console.log( 'failed: ', err );
+    if(img1_data.count && img1_data.count != 1){
+        return sock.emit('speak', '左侧人脸个数不唯一')
+    }
+    if(img2_data.count && img2_data.count != 1){
+        return sock.emit('speak', '右侧人脸个数不唯一')
+    }
+    if(img1_data.trait && img2_data.trait){
+        return cmp_face_by_traits(img1_data.trait, img2_data.trait, (err, data)=>{
+            if(err){
+                sock.emit('speak', '人脸比较失败')
+            } else {
+                //相差度小于0.5即认为是同一个人
+                if(data.diff < 0.5){
+                    sock.emit('speak', '是同一人')
+                } else {
+                    sock.emit('speak', '不是同一人')
+                }
+            }
+        })
+    }
+    if(img1_data.trait || img2_data.trait){
+        let trait, img, to_be_filled;
+        if(img1_data.trait){
+            trait = img1_data.trait;
+            img = img2_data.o_frame;
+            to_be_filled = img2_data;
+        } else {
+            trait = img2_data.trait;
+            img = img1_data.o_frame;
+            to_be_filled = img1_data;
+        }
+        return cmp_face_by_trait_and_img(trait, img, (err, data)=>{
+            if(err){
+                sock.emit('speak', '人脸比较失败')
+            } else {
+                if(data.ret == 0){
+                    if(data.diff < 0.5){
+                        sock.emit('speak', '是同一人')
+                    } else {
+                        sock.emit('speak', '不是同一人')
+                    }
+                    to_be_filled.count = 1;
+                    to_be_filled.trait = data.trait;
+                } else {
+                    to_be_filled.count = data.count;
+                    sock.emit('speak', '照片包含多人，不能比较')
+                }                
+            }
+        })
+    }
+    cmp_face_by_imgs(img1_data.o_frame, img2_data.o_frame, (err, data)=>{
+        if(err){
+            sock.emit('speak', '人脸比较失败')
+        } else {
+            if(data.ret == 0){
+                if(data.diff < 0.5){
+                    sock.emit('speak', '是同一人')
+                } else {
+                    sock.emit('speak', '不是同一人')
+                }
+                img1_data.count = img2_data.count = 1;
+                img1_data.trait = data.trait1;
+                img2_data.trait = data.trait2;
+            } else {
+                img1_data.count = data.count1;
+                img2_data.count = data.count2;
+                sock.emit('speak', '照片包含多人，不能比较')
+            }                
+        }
     })
 }

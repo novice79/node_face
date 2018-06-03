@@ -18,7 +18,7 @@ void FaceTrait::OnError(const Napi::Error &e)
     Napi::HandleScope scope(Env());
     Callback().Call({Napi::String::New(Env(), "somethings wrong")});
 }
-void FaceTrait::cmp_face_traits(const std::string& t1, const std::string& t2)
+float FaceTrait::face_diff(const std::string& t1, const std::string& t2)
 {
     istringstream sst1(t1), sst2(t2);
     matrix<float,0,1> mat1, mat2;
@@ -26,6 +26,11 @@ void FaceTrait::cmp_face_traits(const std::string& t1, const std::string& t2)
     deserialize(mat2, sst2);
     float diff = length(mat1 - mat2);
     FREEGO_INFO << "人脸差异度："<< diff <<endl;
+    return diff;
+}
+void FaceTrait::cmp_face_traits(const std::string& t1, const std::string& t2)
+{
+    float diff = face_diff(t1, t2);
     finish_task = [this, diff]() {
         Napi::HandleScope scope(Env());
         Callback().Call({ Env().Undefined(),  Napi::Number::New(Env(), diff) });
@@ -47,6 +52,8 @@ void FaceTrait::get_face_trait(PImgData imData)
 }
 std::tuple<int, string*> FaceTrait::trait_from_image(const std::vector<uchar> &imData)
 {
+    auto sp5 = s_sp5;
+    auto res_net = s_res_net;
     std::string *trait = 0;
     cv::Mat img = imdecode(cv::Mat(imData), cv::IMREAD_COLOR), im_small;
     cv::resize(img, im_small, cv::Size(), 1.0 / FACE_DOWNSAMPLE_RATIO, 1.0 / FACE_DOWNSAMPLE_RATIO);
@@ -56,25 +63,25 @@ std::tuple<int, string*> FaceTrait::trait_from_image(const std::vector<uchar> &i
     cv_image<bgr_pixel> cimg(img);
     auto detector = get_frontal_face_detector();
     std::vector<matrix<rgb_pixel>> faces;
-    // for (auto face : detector(cimg_small))
-    // {
-    //     rectangle r(
-    //         (long)(face.left() * FACE_DOWNSAMPLE_RATIO),
-    //         (long)(face.top() * FACE_DOWNSAMPLE_RATIO),
-    //         (long)(face.right() * FACE_DOWNSAMPLE_RATIO),
-    //         (long)(face.bottom() * FACE_DOWNSAMPLE_RATIO));
-    //     auto shape = s_sp5(cimg, r);
-    //     matrix<rgb_pixel> face_chip;
-    //     extract_image_chip(cimg, get_face_chip_details(shape, 150, 0.25), face_chip);
-    //     faces.push_back(move(face_chip));
-    // }
-    for (auto face : detector(cimg))
+    for (auto face : detector(cimg_small))
     {
-        auto shape = s_sp5(cimg, face);
+        rectangle r(
+            (long)(face.left() * FACE_DOWNSAMPLE_RATIO),
+            (long)(face.top() * FACE_DOWNSAMPLE_RATIO),
+            (long)(face.right() * FACE_DOWNSAMPLE_RATIO),
+            (long)(face.bottom() * FACE_DOWNSAMPLE_RATIO));
+        auto shape = sp5(cimg, r);
         matrix<rgb_pixel> face_chip;
-        extract_image_chip(cimg, get_face_chip_details(shape,150,0.25), face_chip);
+        extract_image_chip(cimg, get_face_chip_details(shape, 150, 0.25), face_chip);
         faces.push_back(move(face_chip));
     }
+    // for (auto face : detector(cimg))
+    // {
+    //     auto shape = sp5(cimg, face);
+    //     matrix<rgb_pixel> face_chip;
+    //     extract_image_chip(cimg, get_face_chip_details(shape,150,0.25), face_chip);
+    //     faces.push_back(move(face_chip));
+    // }
     int face_cnt = faces.size();
     if (1 == face_cnt)
     {
@@ -82,7 +89,7 @@ std::tuple<int, string*> FaceTrait::trait_from_image(const std::vector<uchar> &i
         // In this 128D vector space, images from the same person will be close to each other
         // but vectors from different people will be far apart.  So we can use these vectors to
         // identify if a pair of images are from the same person or from different people.
-        std::vector<matrix<float, 0, 1>> face_descriptors = s_res_net(faces);
+        std::vector<matrix<float, 0, 1>> face_descriptors = res_net(faces);
         stringstream traits;
         serialize(face_descriptors[0], traits);
         trait = new std::string();
@@ -150,9 +157,149 @@ Napi::Object FaceTrait::Init(Napi::Env env, Napi::Object exports)
             ftWorker->Queue();
             return info.Env().Undefined();
         }));    
+        export_cmp_images(env, exports);
+        export_cmp_trait_and_img(env, exports);
     return exports;
 }
-
+Napi::Object FaceTrait::export_cmp_images(Napi::Env env, Napi::Object exports)
+{
+    exports.Set(
+        Napi::String::New(env, "cmp_images"),
+        Napi::Function::New(env, [](const Napi::CallbackInfo &info) -> Napi::Value {
+            Napi::Env env = info.Env();
+            if (info.Length() < 3)
+            {
+                Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+                return env.Null();
+            }
+            if (! (info[0].IsBuffer() && info[1].IsBuffer() && info[2].IsFunction() ) )
+            {
+                Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+                return env.Null();
+            }
+            auto img1_buff = info[0].As<Napi::Buffer<uchar>>();
+            auto img2_buff = info[1].As<Napi::Buffer<uchar>>();
+            auto img1_data = std::make_shared<std::vector<uchar>>(img1_buff.Data(), img1_buff.Data() + img1_buff.Length());
+            auto img2_data = std::make_shared<std::vector<uchar>>(img2_buff.Data(), img2_buff.Data() + img2_buff.Length());
+            Napi::Function callback = info[2].As<Napi::Function>();
+            FaceTrait *ftWorker = new FaceTrait(callback);
+            ftWorker->do_task = std::bind(
+                &FaceTrait::cmp_images, 
+                ftWorker, 
+                img1_data,
+                img2_data
+            );
+            ftWorker->Queue();
+            return info.Env().Undefined();
+        }));    
+    return exports;
+}
+Napi::Object FaceTrait::export_cmp_trait_and_img(Napi::Env env, Napi::Object exports)
+{
+    exports.Set(
+        Napi::String::New(env, "cmp_trait_and_img"),
+        Napi::Function::New(env, [](const Napi::CallbackInfo &info) -> Napi::Value {
+            Napi::Env env = info.Env();
+            if (info.Length() < 3)
+            {
+                Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+                return env.Null();
+            }
+            if (! (info[0].IsBuffer() && info[1].IsBuffer() && info[2].IsFunction() ) )
+            {
+                Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+                return env.Null();
+            }
+            auto trait_buff = info[0].As<Napi::Buffer<uchar>>();
+            auto img_buff = info[1].As<Napi::Buffer<uchar>>();
+            auto img_data = std::make_shared<std::vector<uchar>>(img_buff.Data(), img_buff.Data() + img_buff.Length());
+            Napi::Function callback = info[2].As<Napi::Function>();
+            FaceTrait *ftWorker = new FaceTrait(callback);
+            ftWorker->do_task = std::bind(
+                &FaceTrait::cmp_trait_and_img, 
+                ftWorker, 
+                string((char*)trait_buff.Data(), trait_buff.Length()),
+                img_data
+            );
+            ftWorker->Queue();
+            return info.Env().Undefined();
+        }));    
+    return exports;
+}
+void FaceTrait::cmp_images(PImgData img1, PImgData img2)
+{
+    pt::ptree root;
+    stringstream ss;
+    auto dd1 = std::async(&FaceTrait::trait_from_image, this, *img1);
+	auto dd2 = std::async(&FaceTrait::trait_from_image, this, *img2);
+    auto ret1 = dd1.get();
+    auto ret2 = dd2.get();
+    
+    // auto ret = trait_from_image(*imData);
+    auto count1 = std::get<0>(ret1);
+    auto count2 = std::get<0>(ret2);
+    if(count1 != 1 || count2 != 1)
+    {
+        root.put("ret", -1);
+        root.put("count1", count1);
+        root.put("count2", count2);
+        pt::write_json(ss, root);
+        auto rdata = ss.str();
+        finish_task = [this, rdata]() {
+            Napi::HandleScope scope(Env());
+            Callback().Call({Napi::String::New(Env(), rdata)});
+        };
+        return;
+    }
+    auto ptrait1 = std::get<1>(ret1);
+    auto ptrait2 = std::get<1>(ret2);
+    float diff = face_diff(*ptrait1, *ptrait2);
+    root.put("ret", 0);
+    root.put("diff", diff);
+    pt::write_json(ss, root);
+    auto rdata = ss.str();
+    finish_task = [this, rdata, ptrait1, ptrait2]() {
+        Napi::HandleScope scope(Env());
+        Callback().Call({
+            Napi::String::New(Env(), rdata),
+            Napi::Buffer<uchar>::New(Env(), (uchar *)ptrait1->c_str(), ptrait1->size(), FaceTrait::trait_buffer_del_cb, ptrait1),
+            Napi::Buffer<uchar>::New(Env(), (uchar *)ptrait2->c_str(), ptrait2->size(), FaceTrait::trait_buffer_del_cb, ptrait2)
+        });
+    };
+}
+void FaceTrait::cmp_trait_and_img(const std::string& trait, PImgData img)
+{
+    pt::ptree root;
+    stringstream ss;
+    auto dd = std::async(&FaceTrait::trait_from_image, this, *img);
+    auto ret = dd.get();    
+    auto count = std::get<0>(ret);
+    if(count != 1)
+    {
+        root.put("ret", -1);
+        root.put("count", count);
+        pt::write_json(ss, root);
+        auto rdata = ss.str();
+        finish_task = [this, rdata]() {
+            Napi::HandleScope scope(Env());
+            Callback().Call({Napi::String::New(Env(), rdata)});
+        };
+        return;
+    }
+    string* ptrait = std::get<1>(ret);
+    float diff = face_diff(*ptrait, trait);
+    root.put("ret", 0);
+    root.put("diff", diff);
+    pt::write_json(ss, root);
+    auto rdata = ss.str();
+    finish_task = [this, rdata, &ptrait]() {
+        Napi::HandleScope scope(Env());
+        Callback().Call({
+            Napi::String::New(Env(), rdata),
+            Napi::Buffer<uchar>::New(Env(), (uchar *)ptrait->c_str(), ptrait->size(), FaceTrait::trait_buffer_del_cb, ptrait)
+        });
+    };
+}
 // ----------------------------------------------------------------------------------------
 std::vector<matrix<rgb_pixel>> jitter_image(
     const matrix<rgb_pixel> &img)
