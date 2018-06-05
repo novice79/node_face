@@ -44,5 +44,4 @@ using anet_type = loss_metric<fc_no_bias<128, avg_pool_everything<
                                                                       max_pool<3, 3, 2, 2, relu<affine<con<32, 7, 7, 2, 2, input_rgb_image_sized<150>>>>>>>>>>>>>;
 
 // ----------------------------------------------------------------------------------------
-#define FACE_DOWNSAMPLE_RATIO 4
-#define SKIP_FRAMES 2
+

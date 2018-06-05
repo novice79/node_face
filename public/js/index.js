@@ -65,6 +65,11 @@ function open_img(type) {
     cur_load_type = type;
     $('input[type="file"]').click();
 }
+function speak_input(){
+    const words = $("#words").val();
+    if(!words) return alert('请先输入文字')
+    speak( words );
+}
 function cmp_face(){
     // sock.emit('speak', '人脸匹配成功')
     if(img1_data.count && img1_data.count != 1){
@@ -78,6 +83,7 @@ function cmp_face(){
             if(err){
                 sock.emit('speak', '人脸比较失败')
             } else {
+                if(data.ret == -1) return sock.emit('speak', data.msg);
                 //相差度小于0.5即认为是同一个人
                 if(data.diff < 0.5){
                     sock.emit('speak', '是同一人')

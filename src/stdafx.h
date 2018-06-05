@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <cstdio>
+#include <ctime>
 #include <cstdlib>
 
 #include <memory>
@@ -25,6 +26,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/asio/serial_port.hpp>
+#include <boost/lexical_cast.hpp>
 //#include <boost/thread.hpp>
 // #include <boost/bind.hpp>
 // #include <boost/shared_ptr.hpp>

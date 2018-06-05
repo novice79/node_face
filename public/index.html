@@ -12,11 +12,11 @@
 <body>
   <div class="container">
     <input type="file" onchange="processFile(this)">
-    <div style="display: flex;">
-      <input placeholder="请输入文字" style="width: 300px;"/>
-      <button onclick="">文字转语音</button>
-      <button onclick='$( "img" ).addClass( "scaled" );' style="margin-left: auto;">图片大小50%</button>
-      <button onclick='$( "img" ).removeClass( "scaled" );' style="margin-left: auto;">图片大小100%</button>
+    <div style="all: revert; display: flex; ">
+      <input id='words' placeholder="请输入文字" style="width: 300px;"/>
+      <button onclick="speak_input()">文字转语音</button>
+      <button onclick='$( "body" ).addClass( "scaled" );' style="margin-left: auto;">50%</button>
+      <button onclick='$( "body" ).removeClass( "scaled" );' style="margin-left: auto;">100%</button>
     </div>
 
     <div class="frame_pair">

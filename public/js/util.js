@@ -6,7 +6,7 @@ function download_img(url, name){
     a.click();
     document.body.removeChild(a);
 }
-function get_img_trait(img, cb){
+function get_face_trait(img, cb){
     let a = new Date().getTime(), b;
     $.ajax( {
         type: "POST",
@@ -22,7 +22,7 @@ function get_img_trait(img, cb){
         console.log('success', resp );
         cb && cb(null, resp);
         b = new Date().getTime();
-        console.log(`/根据图片获取人脸特征，耗时: %d ms`, b-a);
+        console.log(`根据图片获取人脸特征，耗时: %d ms`, b-a);
     })
     .fail( (err)=> { 
         console.log( 'failed: ', err );
@@ -46,7 +46,7 @@ function cmp_face_by_imgs(img1, img2, cb){
         console.log('success', resp );
         cb && cb(null, resp);
         b = new Date().getTime();
-        console.log(`/根据【图片】比较相似度，耗时: %d ms`, b-a);
+        console.log(`根据【图片】比较相似度，耗时: %d ms`, b-a);
     })
     .fail( (err)=> { 
         console.log( 'failed: ', err );
@@ -69,7 +69,7 @@ function cmp_face_by_traits(trait1, trait2, cb){
         console.log('success', resp );
         cb && cb(null, resp);
         b = new Date().getTime();
-        console.log(`/根据【人脸特征】比较相似度，耗时: %d ms`, b-a);
+        console.log(`根据【人脸特征】比较相似度，耗时: %d ms`, b-a);
     })
     .fail( (err)=> { 
         console.log( 'failed: ', err );
@@ -92,7 +92,26 @@ function cmp_face_by_trait_and_img(trait, img, cb){
         console.log('success', resp );
         cb && cb(null, resp);
         b = new Date().getTime();
-        console.log(`/根据人脸【特征和图片】比较相似度，耗时: %d ms`, b-a);
+        console.log(`根据人脸【特征和图片】比较相似度，耗时: %d ms`, b-a);
+    })
+    .fail( (err)=> { 
+        console.log( 'failed: ', err );
+        cb && cb(err);
+    })
+}
+function speak(words){
+    let a = new Date().getTime(), b;
+    $.ajax( {
+        type: "POST",
+        url: '/speak',
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify({words}),
+        dataType: "json"
+    }) 
+    .done( (resp)=> {
+        console.log('success', resp );
+        b = new Date().getTime();
+        console.log(`文字转语音，耗时: %d ms`, b-a);
     })
     .fail( (err)=> { 
         console.log( 'failed: ', err );

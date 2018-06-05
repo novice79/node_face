@@ -1,5 +1,4 @@
-
-
+﻿
 #include "napi-thread-safe-callback.hpp"
 #include "common.h"
 #include "def.h"
@@ -7,7 +6,8 @@
 
 using namespace std;
 
-
+#define FACE_DOWNSAMPLE_RATIO 4
+#define SKIP_FRAMES 2
 void draw_polyline(cv::Mat &img, const dlib::full_object_detection &d, const int start, const int end, bool isClosed = false)
 {
     std::vector<cv::Point> points;
@@ -64,8 +64,11 @@ int capture_video(Napi::Function &cb)
         std::vector<rectangle> faces;
         std::vector<uchar> original, filtered;
         // FREEGO_TRACE <<"in c++ thread\n";
+        clock_t current_ticks, delta_ticks;
+	    clock_t fps = 0;
         while (1)
         {
+            current_ticks = clock();
             // Grab a frame
             cap >> im;
             original_im = im.clone();
@@ -96,7 +99,17 @@ int capture_video(Napi::Function &cb)
                 shapes.push_back(shape);
                 // Custom Face Render
                 render_face(im, shape);
-            }           
+            }          
+            std::string cap = "Powered by FreeGo!(0731-85580789)(18711119261)";
+            using namespace cv;
+            delta_ticks = clock() - current_ticks; //the time, in ms, that took to render the scene
+            if (delta_ticks > 0)
+                fps = CLOCKS_PER_SEC / delta_ticks;
+            cv::putText(original_im, cap, Point2f(15,20), FONT_HERSHEY_PLAIN, 1,  Scalar(0,0,255,255));
+            cv::putText(im, cap, Point2f(15,20), FONT_HERSHEY_PLAIN, 1,  Scalar(0,0,255,255));
+            auto fstr = "FPS:" + boost::lexical_cast<std::string>(fps);
+            cv::putText(original_im, fstr, Point2f(740,20), FONT_HERSHEY_PLAIN, 1,  Scalar(0,0,255,255));
+            cv::putText(im, fstr, Point2f(740,20), FONT_HERSHEY_PLAIN, 1,  Scalar(0,0,255,255));
             imencode(".jpg", original_im, original);
             imencode(".jpg", im, filtered);
             // Call back with result

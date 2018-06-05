@@ -1,4 +1,4 @@
-#include "common.h"
+﻿#include "common.h"
 #include "face.h"
 
 
@@ -20,44 +20,105 @@ void FaceTrait::OnError(const Napi::Error &e)
 }
 float FaceTrait::face_diff(const std::string& t1, const std::string& t2)
 {
+    float diff = -1;
     istringstream sst1(t1), sst2(t2);
     matrix<float,0,1> mat1, mat2;
-    deserialize(mat1, sst1);
-    deserialize(mat2, sst2);
-    float diff = length(mat1 - mat2);
+    try{
+        deserialize(mat1, sst1);
+        deserialize(mat2, sst2);
+        diff = length(mat1 - mat2);
+    }catch(...)
+    {
+        FREEGO_INFO << "人脸特征不合法"<<endl;
+    }
     FREEGO_INFO << "人脸差异度："<< diff <<endl;
     return diff;
 }
 void FaceTrait::cmp_face_traits(const std::string& t1, const std::string& t2)
 {
+    pt::ptree root;
+    stringstream ss;
     float diff = face_diff(t1, t2);
-    finish_task = [this, diff]() {
+    if(diff < 0)
+    {
+        root.put("ret", -1);
+        root.put("msg", "人脸特征不合法");
+        pt::write_json(ss, root);
+        auto rdata = ss.str();
+        finish_task = [this, rdata]() {
+            Napi::HandleScope scope(Env());
+            Callback().Call({Napi::String::New(Env(), rdata)});
+        };
+        return;
+    }
+    root.put("ret", 0);
+    root.put("diff", diff);
+    pt::write_json(ss, root);
+    auto rdata = ss.str();
+    finish_task = [this, rdata]() {
         Napi::HandleScope scope(Env());
-        Callback().Call({ Env().Undefined(),  Napi::Number::New(Env(), diff) });
+        Callback().Call({ Napi::String::New(Env(), rdata) });
     };
 }
 void FaceTrait::get_face_trait(PImgData imData)
 {
+    pt::ptree root;
+    stringstream ss;
     auto ret = trait_from_image(*imData);
+    if(std::get<2>(ret) != 0)
+    {
+        root.put("ret", -1);
+        root.put("msg", "非法的图片");
+        pt::write_json(ss, root);
+        auto rdata = ss.str();
+        finish_task = [this, rdata]() {
+            Napi::HandleScope scope(Env());
+            Callback().Call({Napi::String::New(Env(), rdata)});
+        };
+        return;
+    }
     auto count = std::get<0>(ret);
     auto trait = std::get<1>(ret);
-    finish_task = [this, count, trait]() {
+    if(count != 1)
+    {
+        root.put("ret", -1);
+        root.put("count", count);
+        root.put("msg", count == 0 ? "未找到人脸" : "检测到多个人脸，不能获取特征值");
+        pt::write_json(ss, root);
+        auto rdata = ss.str();
+        finish_task = [this, rdata]() {
+            Napi::HandleScope scope(Env());
+            Callback().Call({Napi::String::New(Env(), rdata)});
+        };
+        return;
+    }
+    root.put("ret", 0);
+    root.put("count", count);
+    pt::write_json(ss, root);
+    auto rdata = ss.str();
+    finish_task = [this, rdata, trait]() {
         Napi::HandleScope scope(Env());
-        Callback().Call({Env().Undefined(),
-                         Napi::Number::New(Env(), count),
-                         trait ? Napi::Buffer<uchar>::New(
-                                      Env(), (uchar *)trait->c_str(), trait->size(), FaceTrait::trait_buffer_del_cb, trait)
-                                : Env().Null()});
+        Callback().Call({
+            Napi::String::New(Env(), rdata), 
+            Napi::Buffer<uchar>::New( Env(), (uchar *)trait->c_str(), trait->size(), FaceTrait::trait_buffer_del_cb, trait) 
+        });
     };
 }
-std::tuple<int, string*> FaceTrait::trait_from_image(const std::vector<uchar> &imData)
+std::tuple<int, string*, int> FaceTrait::trait_from_image(const std::vector<uchar> &imData)
 {
     auto sp5 = s_sp5;
     auto res_net = s_res_net;
     std::string *trait = 0;
-    cv::Mat img = imdecode(cv::Mat(imData), cv::IMREAD_COLOR), im_small;
-    cv::resize(img, im_small, cv::Size(), 1.0 / FACE_DOWNSAMPLE_RATIO, 1.0 / FACE_DOWNSAMPLE_RATIO);
-    FREEGO_DEBUG << "image's size = " << img.cols << " X " << img.rows << endl;
+    cv::Mat img, im_small;
+    double scale_ratio;
+    try{
+        img = imdecode(cv::Mat(imData), cv::IMREAD_COLOR); //exception?
+        FREEGO_DEBUG << "image's size = " << img.cols << " X " << img.rows << endl;
+        scale_ratio = img.rows > 150 ? img.rows / 150 : 1.0;
+        cv::resize(img, im_small, cv::Size(), 1.0 / scale_ratio, 1.0 / scale_ratio);
+    } catch(...){
+        return std::make_tuple(0, trait, -1);
+    }
     // cv::imwrite("333.jpg", img);
     cv_image<bgr_pixel> cimg_small(im_small);
     cv_image<bgr_pixel> cimg(img);
@@ -66,10 +127,10 @@ std::tuple<int, string*> FaceTrait::trait_from_image(const std::vector<uchar> &i
     for (auto face : detector(cimg_small))
     {
         rectangle r(
-            (long)(face.left() * FACE_DOWNSAMPLE_RATIO),
-            (long)(face.top() * FACE_DOWNSAMPLE_RATIO),
-            (long)(face.right() * FACE_DOWNSAMPLE_RATIO),
-            (long)(face.bottom() * FACE_DOWNSAMPLE_RATIO));
+            (long)(face.left() * scale_ratio),
+            (long)(face.top() * scale_ratio),
+            (long)(face.right() * scale_ratio),
+            (long)(face.bottom() * scale_ratio));
         auto shape = sp5(cimg, r);
         matrix<rgb_pixel> face_chip;
         extract_image_chip(cimg, get_face_chip_details(shape, 150, 0.25), face_chip);
@@ -95,7 +156,7 @@ std::tuple<int, string*> FaceTrait::trait_from_image(const std::vector<uchar> &i
         trait = new std::string();
         *trait = traits.str();
     }
-    return std::make_tuple(face_cnt, trait);
+    return std::make_tuple(face_cnt, trait, 0);
 }
 void FaceTrait::Execute()
 {
@@ -234,7 +295,18 @@ void FaceTrait::cmp_images(PImgData img1, PImgData img2)
 	auto dd2 = std::async(&FaceTrait::trait_from_image, this, *img2);
     auto ret1 = dd1.get();
     auto ret2 = dd2.get();
-    
+    if(std::get<2>(ret1) != 0 || std::get<2>(ret2) != 0)
+    {
+        root.put("ret", -1);
+        root.put("msg", "invalid image");
+        pt::write_json(ss, root);
+        auto rdata = ss.str();
+        finish_task = [this, rdata]() {
+            Napi::HandleScope scope(Env());
+            Callback().Call({Napi::String::New(Env(), rdata)});
+        };
+        return;
+    }
     // auto ret = trait_from_image(*imData);
     auto count1 = std::get<0>(ret1);
     auto count2 = std::get<0>(ret2);
@@ -273,6 +345,18 @@ void FaceTrait::cmp_trait_and_img(const std::string& trait, PImgData img)
     stringstream ss;
     auto dd = std::async(&FaceTrait::trait_from_image, this, *img);
     auto ret = dd.get();    
+    if(std::get<2>(ret) != 0)
+    {
+        root.put("ret", -1);
+        root.put("msg", "invalid image");
+        pt::write_json(ss, root);
+        auto rdata = ss.str();
+        finish_task = [this, rdata]() {
+            Napi::HandleScope scope(Env());
+            Callback().Call({Napi::String::New(Env(), rdata)});
+        };
+        return;
+    }
     auto count = std::get<0>(ret);
     if(count != 1)
     {

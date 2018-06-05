@@ -29,8 +29,8 @@ class FaceTrait : public Napi::AsyncWorker
     std::function<void()> do_task;
   private:
     std::function<void()> finish_task;
-    //return face count && face trait(if count == 1)
-    std::tuple<int, std::string*> trait_from_image(const std::vector<uchar> &imData);
+    //return face count && face trait(if count == 1) && error code
+    std::tuple<int, std::string*, int> trait_from_image(const std::vector<uchar> &imData);
     float face_diff(const std::string& t1, const std::string& t2);
     static Napi::Object export_cmp_images(Napi::Env env, Napi::Object exports);
     static Napi::Object export_cmp_trait_and_img(Napi::Env env, Napi::Object exports);

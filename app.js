@@ -62,14 +62,35 @@ app.post('/get_face_trait', function (req, res) {
     let b = new Date().getTime();
     winston.info(`prehandle image cost: %d ms`, b-a);
     // winston.info('process.env.UV_THREADPOOL_SIZE=' + process.env.UV_THREADPOOL_SIZE);
-    addon.get_face_trait(img_data, (err, count, trait)=>{
+    addon.get_face_trait(img_data, (data, trait)=>{
         b = new Date().getTime();
         winston.info(`total cost: %d ms`, b-a);
-        res.json({
-            count,
-            trait: trait ? trait.toString('hex') : null
-        });
+        data = JSON.parse(data);
+        if(trait){
+            data.trait = trait.toString('hex');
+        }
+        res.json(data);
     })    
+});
+app.post('/email', function (req, res) {
+    res.end('david@cninone.com');
+});
+app.post('/author', function (req, res) {
+    res.end('david');
+});
+app.post('/nickname', function (req, res) {
+    res.end('novice');
+});
+app.post('/speak', function (req, res) {
+    if (!req.body) return res.sendStatus(400);
+    let data = req.body;
+    // console.log(data)
+    if ( !data.words ) return res.sendStatus(400);
+    addon.speak(data.words, ret=>{
+        res.json({
+            ret
+        });
+    }) 
 });
 app.post('/cmp_face_by_traits', function (req, res) {
     let a = new Date().getTime(), b;
@@ -79,12 +100,10 @@ app.post('/cmp_face_by_traits', function (req, res) {
     if (! (data.trait1 && data.trait2) ) return res.sendStatus(400);
     const t1_buff = Buffer.from(data.trait1, "hex");
     const t2_buff = Buffer.from(data.trait2, "hex");
-    addon.cmp_traits(t1_buff, t2_buff, (err, diff)=>{
+    addon.cmp_traits(t1_buff, t2_buff, (ret)=>{
         b = new Date().getTime();
         winston.info(`/cmp_face_by_traits total cost: %d ms`, b-a);
-        res.json({
-            diff
-        });
+        res.end(ret);
     })    
 });
 app.post('/cmp_face_by_trait_and_img', async function (req, res) {
@@ -101,7 +120,7 @@ app.post('/cmp_face_by_trait_and_img', async function (req, res) {
         console.log(`/cmp_face_by_trait_and_img total cost: %d ms`, b-a);
         winston.info(`/cmp_face_by_trait_and_img total cost: %d ms`, b-a);
         ret = JSON.parse(ret);
-        ret.trait = t.toString('hex') 
+        if(t) ret.trait = t.toString('hex') 
         res.json(ret);
     })
 });
@@ -123,8 +142,8 @@ app.post('/cmp_face_by_imgs', async function (req, res) {
         winston.info(`/cmp_face_by_imgs total cost: %d ms`, b-a);
         // console.log(typeof ret);
         ret = JSON.parse(ret);
-        ret.trait1 = t1.toString('hex') 
-        ret.trait2 = t2.toString('hex') 
+        if(t1) ret.trait1 = t1.toString('hex') 
+        if(t2) ret.trait2 = t2.toString('hex') 
         res.json(ret);
     })
     // const t1 = new Promise(function(resolve, reject) {
