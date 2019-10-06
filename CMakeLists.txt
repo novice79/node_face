@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-set(CMAKE_TOOLCHAIN_FILE "D:/installed/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
 # Name of the project (will be the name of the plugin)
 project(addon)
@@ -80,3 +80,14 @@ target_link_libraries(${PROJECT_NAME}
     Boost::system
     )
 target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
+
+# The package opencv provides CMake integration:
+
+#     find_package(OpenCV REQUIRED)
+#     target_include_directories(main PRIVATE ${OpenCV_INCLUDE_DIRS})
+#     target_link_libraries(main PRIVATE ${OpenCV_LIBS})
+    
+# The package dlib:x64-windows provides CMake targets:
+
+#     find_package(dlib REQUIRED)
+#     target_link_libraries(main PRIVATE dlib::dlib) 

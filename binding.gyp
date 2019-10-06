@@ -17,7 +17,7 @@
         ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
-        "D:/installed/vcpkg/installed/x64-windows-static/include"
+        "D:/vcpkg/installed/x64-windows-static/include"
       ],
       'defines': [ 
         # '_HAS_EXCEPTIONS=1',
@@ -34,7 +34,7 @@
         ['OS=="win"', { 'defines': [ '_HAS_EXCEPTIONS=1' ] }]
       ],
       'variables': {
-        'lib_dir%': 'D:/installed/vcpkg/installed/x64-windows-static/lib'
+        'lib_dir%': 'D:/vcpkg/installed/x64-windows-static/lib'
       },
       'libraries': [
         '-l<(lib_dir)/boost_system-vc140-mt.lib'
@@ -48,24 +48,23 @@
         ,'-l<(lib_dir)/boost_log-vc140-mt.lib'
         ,'-l<(lib_dir)/boost_locale-vc140-mt.lib'
 
-        ,'-l<(lib_dir)/opencv_calib3d341.lib'
-        ,'-l<(lib_dir)/opencv_core341.lib'
-        ,'-l<(lib_dir)/opencv_features2d341.lib'
-        ,'-l<(lib_dir)/opencv_flann341.lib'
-        ,'-l<(lib_dir)/opencv_highgui341.lib'
-        ,'-l<(lib_dir)/opencv_imgcodecs341.lib'
-        ,'-l<(lib_dir)/opencv_imgproc341.lib'
-        ,'-l<(lib_dir)/opencv_ml341.lib'
-        ,'-l<(lib_dir)/opencv_objdetect341.lib'
-        ,'-l<(lib_dir)/opencv_photo341.lib'
-        ,'-l<(lib_dir)/opencv_shape341.lib'
-        ,'-l<(lib_dir)/opencv_stitching341.lib'
-        ,'-l<(lib_dir)/opencv_superres341.lib'
-        ,'-l<(lib_dir)/opencv_video341.lib'
-        ,'-l<(lib_dir)/opencv_videoio341.lib'
-        ,'-l<(lib_dir)/opencv_videostab341.lib'
+        ,'-l<(lib_dir)/opencv_calib3d.lib'
+        ,'-l<(lib_dir)/opencv_core.lib'
+        ,'-l<(lib_dir)/opencv_features2d.lib'
+        ,'-l<(lib_dir)/opencv_flann.lib'
+        ,'-l<(lib_dir)/opencv_highgui.lib'
+        ,'-l<(lib_dir)/opencv_imgcodecs.lib'
+        ,'-l<(lib_dir)/opencv_imgproc.lib'
+        ,'-l<(lib_dir)/opencv_ml.lib'
+        ,'-l<(lib_dir)/opencv_objdetect.lib'
+        ,'-l<(lib_dir)/opencv_photo.lib'
+        ,'-l<(lib_dir)/opencv_stitching.lib'
+        ,'-l<(lib_dir)/opencv_video.lib'
+        ,'-l<(lib_dir)/opencv_videoio.lib'
 
-        ,'-l<(lib_dir)/ittnotify.lib'
+        ,'-l<(lib_dir)/webp.lib'
+        ,'-l<(lib_dir)/webpdecoder.lib'
+        ,'-l<(lib_dir)/webpdemux.lib'
         ,'-l<(lib_dir)/jpeg.lib'
         ,'-l<(lib_dir)/libpng16.lib'
         ,'-l<(lib_dir)/GlU32.lib'
@@ -76,15 +75,16 @@
         ,'-l<(lib_dir)/lzma.lib'
         ,'-l<(lib_dir)/libeay32.lib'
         ,'-l<(lib_dir)/lapack.lib'
+        ,'-l<(lib_dir)/libf2c.lib'
         ,'-l<(lib_dir)/OpenGL32.lib'
         ,'-lvfw32.lib'
         ,'-lcomctl32.lib'
 
-        ,'-l<(lib_dir)/dlib19.10.0_release_64bit_msvc1912.lib'
+        ,'-l<(lib_dir)/dlib19.17.0_release_64bit_msvc1923.lib'
         ,'-l<(lib_dir)/openblas.lib'
         ,'-l<(lib_dir)/fftw3.lib'
         ,'-l<(lib_dir)/fftw3f.lib'
-        ,'-l<(lib_dir)/fftw3l.lib'
+        ,'-l<(lib_dir)/fftw3l.lib'        
       ],
       'configurations': {
         'Release': {
