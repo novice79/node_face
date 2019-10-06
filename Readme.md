@@ -30,4 +30,4 @@
     
 **[服务接口说明](api.txt)**
 
-***[demo下载]()***
+***[demo下载](https://github.com/novice79/node_face/releases/download/1.0/dist.rar)***
