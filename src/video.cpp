@@ -52,8 +52,8 @@ int capture_video(Napi::Function &cb)
             FREEGO_TRACE <<"打开摄像头失败！"<<endl;
             return;
         }        
-        cap.set(cv::CAP_PROP_FRAME_WIDTH, 800);
-        cap.set(cv::CAP_PROP_FRAME_HEIGHT, 600);
+        // cap.set(cv::CAP_PROP_FRAME_WIDTH, 800);
+        // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 600);
 
         cv::Mat im, original_im;
         cv::Mat im_small, im_display;
