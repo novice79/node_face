@@ -1,53 +1,11 @@
-cmake_minimum_required(VERSION 3.2)
-set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake")
+cmake_minimum_required(VERSION 3.7)
 
 # Name of the project (will be the name of the plugin)
 project(addon)
-message ("aaaaaaaaaaaaaaaaaaaaaaaaa ${VCPKG_TARGET_TRIPLET}")
-if (MSVC)
-    # For precompiled header.
-    # Set 
-    # "Precompiled Header" to "Use (/Yu)"
-    # "Precompiled Header File" to "stdafx.h"
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Yustdafx.h /FIstdafx.h")
-endif()
-set_source_files_properties(src/stdafx.cpp
-    PROPERTIES
-    COMPILE_FLAGS "/Ycstdafx.h"
-)
-# set(BOOST_ROOT "E:/cpp_libs/boost/win64")
-# set(BOOST_INCLUDEDIR "${BOOST_ROOT}/include/boost-1_66")
-# set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib")
-# FOREACH(LIB 
-#     libboost_system-vc140-mt-s-x64-1_66.lib
-#     libboost_date_time-vc140-mt-s-x64-1_66.lib
-#     libboost_regex-vc140-mt-s-x64-1_66.lib
-#     libboost_atomic-vc140-mt-s-x64-1_66.lib
-#     libboost_chrono-vc140-mt-s-x64-1_66.lib
-#     libboost_log_setup-vc140-mt-s-x64-1_66.lib
-#     libboost_thread-vc140-mt-s-x64-1_66.lib
-#     libboost_filesystem-vc140-mt-s-x64-1_66.lib
-#     libboost_log-vc140-mt-s-x64-1_66.lib
-# )
-#     FIND_LIBRARY(FOUND_LIB_${LIB} ${LIB} "${BOOST_LIBRARYDIR}")
-#     LIST(APPEND Boost_LIBRARIES ${FOUND_LIB_${LIB}})
-# ENDFOREACH(LIB)
-find_package(Boost COMPONENTS date_time filesystem regex atomic chrono log_setup thread log system REQUIRED)
-# opencv begin ####################################
-SET(OpenCV_DIR "E:/cpp_libs/opencv/build/x64/vc14/lib" )
-# Requires OpenCV
-FIND_PACKAGE( OpenCV 3.0.0 REQUIRED )
-MESSAGE("OpenCV version : ${OpenCV_VERSION}")
-include_directories(${OpenCV_INCLUDE_DIRS})
-link_directories(${OpenCV_LIB_DIR})
-# opencv end ####################################
-
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
 # Build a shared library named after the project from the files in `src/`
 file(GLOB SOURCE_FILES "src/*.cc" "src/*.cpp" "src/*.h")
-add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
 
 
 # Gives our library file a .node extension without any "lib" prefix
@@ -63,11 +21,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/node_mod
 # You should add this line in every CMake.js based project
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
 
-# MESSAGE("@@@@@@@ boost libs : ${Boost_LIBRARIES} @@@@@@@")
-include_directories(${BOOST_INCLUDEDIR})
-#link_directories(${BOOST_LIBRARYDIR})
 
-# target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME ON) 
+find_package(Boost COMPONENTS date_time filesystem regex atomic chrono log_setup thread log system REQUIRED)
+include_directories(${BOOST_INCLUDEDIR})
 target_link_libraries(${PROJECT_NAME} 
     Boost::date_time 
     Boost::filesystem 
@@ -79,15 +38,17 @@ target_link_libraries(${PROJECT_NAME}
     Boost::log 
     Boost::system
     )
-target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
-
-# The package opencv provides CMake integration:
-
-#     find_package(OpenCV REQUIRED)
-#     target_include_directories(main PRIVATE ${OpenCV_INCLUDE_DIRS})
-#     target_link_libraries(main PRIVATE ${OpenCV_LIBS})
     
-# The package dlib:x64-windows provides CMake targets:
+find_package(OpenCV REQUIRED)
+MESSAGE("OpenCV version : ${OpenCV_VERSION}")
+target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
-#     find_package(dlib REQUIRED)
-#     target_link_libraries(main PRIVATE dlib::dlib) 
+find_package(dlib REQUIRED)
+target_link_libraries(${PROJECT_NAME} dlib::dlib)
+
+
+
+
+
+     

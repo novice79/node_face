@@ -1,7 +1,9 @@
 #pragma once
+
 #include <uv.h>
 #include <napi.h>
-#include <map>
+
+#include "common.h"
 
 class NativeWorker : public Napi::ObjectWrap<NativeWorker> {
   class Subscriber

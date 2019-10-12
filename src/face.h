@@ -4,7 +4,7 @@
 
 class FaceTrait : public Napi::AsyncWorker
 {
-    static void trait_buffer_del_cb(Napi::Env env, uchar *data, std::string *hint)
+    static void trait_buffer_del_cb(Napi::Env env, uint8_t *data, std::string *hint)
     {
         // FREEGO_TRACE <<"in buffer_delete_callback, hint="<<*hint<<endl;
         delete hint;
@@ -21,7 +21,7 @@ class FaceTrait : public Napi::AsyncWorker
     void OnOK();
     void OnError(const Napi::Error &e);
     //////////////////////////////////
-    typedef std::shared_ptr<std::vector<uchar>> PImgData;
+    typedef std::shared_ptr<std::vector<uint8_t>> PImgData;
     void get_face_trait(PImgData imData);
     void cmp_face_traits(const std::string& t1, const std::string& t2);
     void cmp_images(PImgData img1, PImgData img2);
@@ -30,7 +30,7 @@ class FaceTrait : public Napi::AsyncWorker
   private:
     std::function<void()> finish_task;
     //return face count && face trait(if count == 1) && error code
-    std::tuple<int, std::string*, int> trait_from_image(const std::vector<uchar> &imData);
+    std::tuple<int, std::string*, int> trait_from_image(const std::vector<uint8_t> &imData);
     float face_diff(const std::string& t1, const std::string& t2);
     static Napi::Object export_cmp_images(Napi::Env env, Napi::Object exports);
     static Napi::Object export_cmp_trait_and_img(Napi::Env env, Napi::Object exports);

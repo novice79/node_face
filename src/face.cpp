@@ -100,11 +100,11 @@ void FaceTrait::get_face_trait(PImgData imData)
         Napi::HandleScope scope(Env());
         Callback().Call({
             Napi::String::New(Env(), rdata), 
-            Napi::Buffer<uchar>::New( Env(), (uchar *)trait->c_str(), trait->size(), FaceTrait::trait_buffer_del_cb, trait) 
+            Napi::Buffer<uint8_t>::New( Env(), (uint8_t *)trait->c_str(), trait->size(), FaceTrait::trait_buffer_del_cb, trait) 
         });
     };
 }
-std::tuple<int, string*, int> FaceTrait::trait_from_image(const std::vector<uchar> &imData)
+std::tuple<int, string*, int> FaceTrait::trait_from_image(const std::vector<uint8_t> &imData)
 {
     auto sp5 = s_sp5;
     auto res_net = s_res_net;
@@ -183,9 +183,9 @@ Napi::Object FaceTrait::Init(Napi::Env env, Napi::Object exports)
                 return env.Null();
             }
 
-            auto buff = info[0].As<Napi::Buffer<uchar>>();
+            auto buff = info[0].As<Napi::Buffer<uint8_t>>();
             Napi::Function callback = info[1].As<Napi::Function>();
-            auto im_data = std::make_shared<std::vector<uchar>>(buff.Data(), buff.Data() + buff.Length());
+            auto im_data = std::make_shared<std::vector<uint8_t>>(buff.Data(), buff.Data() + buff.Length());
             FaceTrait *ftWorker = new FaceTrait(callback);
             ftWorker->do_task = std::bind(&FaceTrait::get_face_trait, ftWorker, im_data);
             ftWorker->Queue();
@@ -205,8 +205,8 @@ Napi::Object FaceTrait::Init(Napi::Env env, Napi::Object exports)
                 Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
                 return env.Null();
             }
-            auto t1_buff = info[0].As<Napi::Buffer<uchar>>();
-            auto t2_buff = info[1].As<Napi::Buffer<uchar>>();
+            auto t1_buff = info[0].As<Napi::Buffer<uint8_t>>();
+            auto t2_buff = info[1].As<Napi::Buffer<uint8_t>>();
             Napi::Function callback = info[2].As<Napi::Function>();
             FaceTrait *ftWorker = new FaceTrait(callback);
             ftWorker->do_task = std::bind(
@@ -238,10 +238,10 @@ Napi::Object FaceTrait::export_cmp_images(Napi::Env env, Napi::Object exports)
                 Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
                 return env.Null();
             }
-            auto img1_buff = info[0].As<Napi::Buffer<uchar>>();
-            auto img2_buff = info[1].As<Napi::Buffer<uchar>>();
-            auto img1_data = std::make_shared<std::vector<uchar>>(img1_buff.Data(), img1_buff.Data() + img1_buff.Length());
-            auto img2_data = std::make_shared<std::vector<uchar>>(img2_buff.Data(), img2_buff.Data() + img2_buff.Length());
+            auto img1_buff = info[0].As<Napi::Buffer<uint8_t>>();
+            auto img2_buff = info[1].As<Napi::Buffer<uint8_t>>();
+            auto img1_data = std::make_shared<std::vector<uint8_t>>(img1_buff.Data(), img1_buff.Data() + img1_buff.Length());
+            auto img2_data = std::make_shared<std::vector<uint8_t>>(img2_buff.Data(), img2_buff.Data() + img2_buff.Length());
             Napi::Function callback = info[2].As<Napi::Function>();
             FaceTrait *ftWorker = new FaceTrait(callback);
             ftWorker->do_task = std::bind(
@@ -271,9 +271,9 @@ Napi::Object FaceTrait::export_cmp_trait_and_img(Napi::Env env, Napi::Object exp
                 Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
                 return env.Null();
             }
-            auto trait_buff = info[0].As<Napi::Buffer<uchar>>();
-            auto img_buff = info[1].As<Napi::Buffer<uchar>>();
-            auto img_data = std::make_shared<std::vector<uchar>>(img_buff.Data(), img_buff.Data() + img_buff.Length());
+            auto trait_buff = info[0].As<Napi::Buffer<uint8_t>>();
+            auto img_buff = info[1].As<Napi::Buffer<uint8_t>>();
+            auto img_data = std::make_shared<std::vector<uint8_t>>(img_buff.Data(), img_buff.Data() + img_buff.Length());
             Napi::Function callback = info[2].As<Napi::Function>();
             FaceTrait *ftWorker = new FaceTrait(callback);
             ftWorker->do_task = std::bind(
@@ -334,8 +334,8 @@ void FaceTrait::cmp_images(PImgData img1, PImgData img2)
         Napi::HandleScope scope(Env());
         Callback().Call({
             Napi::String::New(Env(), rdata),
-            Napi::Buffer<uchar>::New(Env(), (uchar *)ptrait1->c_str(), ptrait1->size(), FaceTrait::trait_buffer_del_cb, ptrait1),
-            Napi::Buffer<uchar>::New(Env(), (uchar *)ptrait2->c_str(), ptrait2->size(), FaceTrait::trait_buffer_del_cb, ptrait2)
+            Napi::Buffer<uint8_t>::New(Env(), (uint8_t *)ptrait1->c_str(), ptrait1->size(), FaceTrait::trait_buffer_del_cb, ptrait1),
+            Napi::Buffer<uint8_t>::New(Env(), (uint8_t *)ptrait2->c_str(), ptrait2->size(), FaceTrait::trait_buffer_del_cb, ptrait2)
         });
     };
 }
@@ -380,7 +380,7 @@ void FaceTrait::cmp_trait_and_img(const std::string& trait, PImgData img)
         Napi::HandleScope scope(Env());
         Callback().Call({
             Napi::String::New(Env(), rdata),
-            Napi::Buffer<uchar>::New(Env(), (uchar *)ptrait->c_str(), ptrait->size(), FaceTrait::trait_buffer_del_cb, ptrait)
+            Napi::Buffer<uint8_t>::New(Env(), (uint8_t *)ptrait->c_str(), ptrait->size(), FaceTrait::trait_buffer_del_cb, ptrait)
         });
     };
 }
