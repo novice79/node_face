@@ -39,6 +39,8 @@
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
 namespace pt = boost::property_tree;
+// OpenCV includes
+#include <opencv2/opencv.hpp>
 
 #include <napi.h>
 

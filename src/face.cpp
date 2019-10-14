@@ -4,7 +4,6 @@
 
 using namespace std;
 
-
 FaceTrait::~FaceTrait()
 {
     FREEGO_INFO << "FaceTrait::~FaceTrait()\n";

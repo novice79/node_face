@@ -64,3 +64,6 @@ input[type="file"] {
     -moz-transform: scale(0.5);
     transform: scale(0.5);
 }
+img{
+    width: 100%;
+}

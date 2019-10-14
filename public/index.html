@@ -5,44 +5,28 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>C++人脸插件测试</title>
   <link href="css/index.css" rel="stylesheet" type="text/css" />
-  <script src="/socket.io/socket.io.js"></script>
   <script src="libs/jquery-2.1.4.min.js"></script>
 </head>
 
 <body>
   <div class="container">
     <input type="file" onchange="processFile(this)">
-    <div style="all: revert; display: flex; ">
-      <input id='words' placeholder="请输入文字" style="width: 300px;"/>
-      <button onclick="speak_input()">文字转语音</button>
-      <button onclick='$( "body" ).addClass( "scaled" );' style="margin-left: auto;">50%</button>
-      <button onclick='$( "body" ).removeClass( "scaled" );' style="margin-left: auto;">100%</button>
-    </div>
-
-    <div class="frame_pair">
-      <img id="o_frame" draggable="true" ondragstart="drag_o(event)">
-      <img id="f_frame" draggable="true" ondragstart="drag_f(event)">
-    </div>
-    <div class="header">
-      <!-- &#8593;向上                &#8595;向下 -->
-      <h3>可将实时视频拖拽至下面【&#8595;】的图片框中以完成拍照</h3>
-    </div>
     <div class="img_pair">
       <div>
-        <img id="img1" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <img id="img1" >
         <div class="action">
-          <button onclick="save_img(0)">保存图片</button>
           <button onclick="open_img(0)">加载图片</button>
+          <button onclick="get_trait(0)">获取人脸特征</button>
         </div>
       </div>
       <div>
         <button style="min-width: 100px;" onclick="cmp_face()">&lt;--比较--&gt;</button>
       </div>
       <div>
-        <img id="img2" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <img id="img2" >
         <div class="action">
-          <button onclick="save_img(1)">保存图片</button>
           <button onclick="open_img(1)">加载图片</button>
+          <button onclick="get_trait(1)">获取人脸特征</button>
         </div>
       </div>
     </div>

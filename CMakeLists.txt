@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.7)
 
 # Name of the project (will be the name of the plugin)
 project(addon)
-
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++17")
 # Build a shared library named after the project from the files in `src/`
 file(GLOB SOURCE_FILES "src/*.cc" "src/*.cpp" "src/*.h")
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES} ${CMAKE_JS_SRC})
@@ -22,9 +23,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/node_mod
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
 
 
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)  
-set(Boost_USE_STATIC_RUNTIME ON) 
+# set(Boost_USE_STATIC_LIBS ON)
+# set(Boost_USE_MULTITHREADED ON)  
+# set(Boost_USE_STATIC_RUNTIME ON) 
 find_package(Boost COMPONENTS date_time filesystem regex atomic chrono log_setup thread log system REQUIRED)
 include_directories(${BOOST_INCLUDEDIR})
 target_link_libraries(${PROJECT_NAME} 

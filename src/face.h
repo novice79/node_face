@@ -2,6 +2,7 @@
 #pragma once
 #include "def.h"
 
+
 class FaceTrait : public Napi::AsyncWorker
 {
     static void trait_buffer_del_cb(Napi::Env env, uint8_t *data, std::string *hint)
