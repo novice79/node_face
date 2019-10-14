@@ -115,7 +115,7 @@ std::tuple<int, string*, int> FaceTrait::trait_from_image(const std::vector<uint
         FREEGO_DEBUG << "image's size = " << o_img.cols << " X " << o_img.rows << endl;
         // 限制在400万像素以内？
         scale_ratio = o_img.rows > 2000 ? o_img.rows / 2000.0 : 1.0;
-        v::resize(o_img, img, cv::Size(), 1.0 / scale_ratio, 1.0 / scale_ratio);
+        cv::resize(o_img, img, cv::Size(), 1.0 / scale_ratio, 1.0 / scale_ratio);
         FREEGO_DEBUG << "readjust image's size = " << img.cols << " X " << img.rows << endl;
         
         scale_ratio = img.rows > 200 ? img.rows / 200.0 : 1.0;
