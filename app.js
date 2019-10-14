@@ -31,11 +31,12 @@ global.winston = wins.createLogger({
         new wins.transports.Console()
     ]
 });
-app.use(bodyParser.json({ limit: '50mb' }));       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-    limit: '50mb',
-    extended: true
-}));
+
+app.use(bodyParser.json({ limit: '10mb' }));       // to support JSON-encoded bodies
+// app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+//     limit: '50mb',
+//     extended: true
+// }));
 
 app.use(require('express').static('./public'));
 process.on('uncaughtException', (err) => {
@@ -86,10 +87,11 @@ app.post('/cmp_face_by_traits', (req, res)=> {
     addon.cmp_traits(t1_buff, t2_buff, (ret) => {
         b = new Date().getTime();
         winston.info(`/cmp_face_by_traits total cost: ${b - a} ms`);
+        res.setHeader('Content-Type', 'application/json');
         res.end(ret);
     })
 });
-app.post('/cmp_face_by_trait_and_img', async function (req, res) {
+app.post('/cmp_face_by_trait_and_img', (req, res)=> {
     let a = new Date().getTime(), b;
     if (!req.body) return res.sendStatus(400);
     let data = req.body;
@@ -106,7 +108,7 @@ app.post('/cmp_face_by_trait_and_img', async function (req, res) {
         res.json(ret);
     })
 });
-app.post('/cmp_face_by_imgs', async function (req, res) {
+app.post('/cmp_face_by_imgs', (req, res)=> {
     let a = new Date().getTime(), b;
     if (!req.body) return res.sendStatus(400);
     let data = req.body;
@@ -129,39 +131,5 @@ app.post('/cmp_face_by_imgs', async function (req, res) {
         if (t2) ret.trait2 = t2.toString('base64')
         res.json(ret);
     })
-    // const t1 = new Promise(function(resolve, reject) {
-    //     addon.get_face_trait(img1, (err, count, trait)=>{
-    //         if (err) {
-    //             reject(err);
-    //         } else {
-    //             resolve({count, trait});
-    //         }
-    //     })
-    // });
-    // let trait1 = await t1;
-    // const t2 = new Promise(function(resolve, reject) {
-    //     addon.get_face_trait(img2, (err, count, trait)=>{
-    //         if (err) {
-    //             reject(err);
-    //         } else {
-    //              resolve({count, trait});
-    //         }
-    //     })
-    // });        
-    // let trait2 = await t2;
-    // if( !(trait1.count == 1 && trait2.count == 1 ) ){
-    //     return res.json({ trait1, trait2 });
-    // }
-    // // winston.info(`trait1: %s`, trait1.trait.toString('base64'));
-    // // winston.info(`trait2: %s`, trait2.trait.toString('base64'));
-    // addon.cmp_traits(trait1.trait, trait2.trait, (err, diff)=>{
-    //     b = new Date().getTime();
-    //     winston.info(`/cmp_face_by_imgs total cost: ${b - a} ms`);
-    //     console.log('diff='+diff);
-    //     res.json({
-    //         diff
-    //     });
-    // });
-
 });
 
