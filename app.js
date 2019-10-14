@@ -58,6 +58,7 @@ app.post('/get_face_trait', (req, res)=> {
     // winston.info('process.env.UV_THREADPOOL_SIZE=' + process.env.UV_THREADPOOL_SIZE);
     // fs.writeFile(`img1.jpg`, img_data, ()=>{});
     addon.get_face_trait(img_data, (data, trait) => {
+        winston.info(`addon.get_face_trait(), data=${data}` );
         b = new Date().getTime();
         winston.info(`total cost: ${b - a} ms`);
         data = JSON.parse(data);
@@ -116,8 +117,10 @@ app.post('/cmp_face_by_imgs', async function (req, res) {
     img2 = Buffer.from(img2, "base64");
     // fs.writeFile(`img1.jpg`, img1, ()=>{});
     // fs.writeFile(`img2.jpg`, img2, ()=>{});
+    b = new Date().getTime();
+    winston.info(`cmp_face_by_imgs prehandle image cost: ${b - a} ms` );
     addon.cmp_images(img1, img2, (ret, t1, t2) => {
-        // console.log(ret)
+        console.log('addon.cmp_images, ret='+ret)
         b = new Date().getTime();
         winston.info(`/cmp_face_by_imgs total cost: ${b - a} ms` );
         // console.log(typeof ret);

@@ -108,13 +108,19 @@ std::tuple<int, string*, int> FaceTrait::trait_from_image(const std::vector<uint
     auto sp5 = s_sp5;
     auto res_net = s_res_net;
     std::string *trait = 0;
-    cv::Mat img, im_small;
+    cv::Mat o_img, img, im_small;
     double scale_ratio;
-    try{
-        img = imdecode(cv::Mat(imData), cv::IMREAD_COLOR); //exception?
-        FREEGO_DEBUG << "image's size = " << img.cols << " X " << img.rows << endl;
-        scale_ratio = img.rows > 150 ? img.rows / 150 : 1.0;
+    try{        
+        o_img = imdecode(cv::Mat(imData), cv::IMREAD_COLOR); //exception?
+        FREEGO_DEBUG << "image's size = " << o_img.cols << " X " << o_img.rows << endl;
+        // 限制在400万像素以内？
+        scale_ratio = o_img.rows > 2000 ? o_img.rows / 2000.0 : 1.0;
+        v::resize(o_img, img, cv::Size(), 1.0 / scale_ratio, 1.0 / scale_ratio);
+        FREEGO_DEBUG << "readjust image's size = " << img.cols << " X " << img.rows << endl;
+        
+        scale_ratio = img.rows > 200 ? img.rows / 200.0 : 1.0;
         cv::resize(img, im_small, cv::Size(), 1.0 / scale_ratio, 1.0 / scale_ratio);
+        FREEGO_DEBUG << "im_small's size = " << im_small.cols << " X " << im_small.rows << endl;
     } catch(...){
         return std::make_tuple(0, trait, -1);
     }
@@ -132,14 +138,14 @@ std::tuple<int, string*, int> FaceTrait::trait_from_image(const std::vector<uint
             (long)(face.bottom() * scale_ratio));
         auto shape = sp5(cimg, r);
         matrix<rgb_pixel> face_chip;
-        extract_image_chip(cimg, get_face_chip_details(shape, 150, 0.25), face_chip);
+        extract_image_chip(cimg, get_face_chip_details(shape, 200, 0.2), face_chip);
         faces.push_back(move(face_chip));
     }
     // for (auto face : detector(cimg))
     // {
     //     auto shape = sp5(cimg, face);
     //     matrix<rgb_pixel> face_chip;
-    //     extract_image_chip(cimg, get_face_chip_details(shape,150,0.25), face_chip);
+    //     extract_image_chip(cimg, get_face_chip_details(shape,200,0.25), face_chip);
     //     faces.push_back(move(face_chip));
     // }
     int face_cnt = faces.size();
@@ -329,6 +335,7 @@ void FaceTrait::cmp_images(PImgData img1, PImgData img2)
     root.put("diff", diff);
     pt::write_json(ss, root);
     auto rdata = ss.str();
+    FREEGO_INFO << "in FaceTrait::cmp_images: "<< rdata <<endl;
     finish_task = [this, rdata, ptrait1, ptrait2]() {
         Napi::HandleScope scope(Env());
         Callback().Call({

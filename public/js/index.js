@@ -28,7 +28,6 @@ function open_img(type) {
 function get_trait(which){
     if( !( (img1_data && img1_data.o_frame) || (img2_data && img2_data.o_frame)) ) return alert('未选择图片');
     let img = which == 0 ? img1_data.o_frame : img2_data.o_frame;
-    console.log(img);
     get_face_trait(img, function(err, res){
         if(err){
             alert('获取特征失败');
@@ -36,6 +35,11 @@ function get_trait(which){
             if(res.ret != 0){
                 alert('获取特征失败:'+res.msg);
             } else{
+                if(which == 0){
+                    img1_data.trait = res.trait;
+                } else {
+                    img2_data.trait = res.trait;
+                }
                 alert('获取特征成功:'+res.trait);
             }
         }

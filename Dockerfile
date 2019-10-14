@@ -21,4 +21,4 @@ COPY --from=my_build /face/build/Release/addon.node .
 COPY model/* ./
 COPY public ./public
 
-ENTRYPOINT ["app"]
+ENTRYPOINT ["./app"]
