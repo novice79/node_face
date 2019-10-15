@@ -23,9 +23,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/node_mod
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
 
 
-# set(Boost_USE_STATIC_LIBS ON)
-# set(Boost_USE_MULTITHREADED ON)  
-# set(Boost_USE_STATIC_RUNTIME ON) 
+set(Boost_USE_STATIC_LIBS ON)
+set(Boost_USE_MULTITHREADED ON)  
+set(Boost_USE_STATIC_RUNTIME ON) 
 find_package(Boost COMPONENTS date_time filesystem regex atomic chrono log_setup thread log system REQUIRED)
 include_directories(${BOOST_INCLUDEDIR})
 target_link_libraries(${PROJECT_NAME} 
@@ -41,6 +41,7 @@ target_link_libraries(${PROJECT_NAME}
     )
     
 find_package(OpenCV REQUIRED)
+set( OpenCV_STATIC ON ) 
 MESSAGE("OpenCV version : ${OpenCV_VERSION}")
 target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
