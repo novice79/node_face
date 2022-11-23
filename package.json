@@ -14,7 +14,7 @@
     "moment": "^2.24.0",
     "node-addon-api": "^1.7.1",
     "request": "^2.88.0",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.5.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.2.1"
   }
